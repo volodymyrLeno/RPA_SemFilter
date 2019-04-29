@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 public class ReadSimplifier {
 
     public static boolean isRedundantCopy(String logs) {
-        String regex = "(.*copy.*\\n)((((?!paste).)*\\n)*)(.*copy.*\\n*)";
+        String regex = "(.*copy.*\\n)((((?!paste|editField|editCell).)*\\n)*)(.*copy.*\\n*)";
 
         Pattern p = Pattern.compile(regex);
         Matcher matcher = p.matcher(logs);
@@ -15,7 +15,7 @@ public class ReadSimplifier {
     }
 
     public static String deleteRedundantCopy(String logs) {
-        String regex = "(.*copy.*\\n)((((?!paste).)*\\n)*)(.*copy.*\\n*)";
+        String regex = "(.*copy.*\\n)((((?!paste|editField|editCell).)*\\n)*)(.*copy.*\\n*)";
 
         Pattern p = Pattern.compile(regex);
         Matcher matcher = p.matcher(logs);
