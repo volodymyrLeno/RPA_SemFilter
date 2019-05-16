@@ -8,7 +8,7 @@ import java.io.*;
 
 public class Utils {
 
-    private static final String SAMPLE_CSV_FILE_PATH = "paste_logs.csv";
+    private static final String SAMPLE_CSV_FILE_PATH = "logs.csv";
 
     public String readLogsFromFile() {
         StringBuilder stringBuilder = new StringBuilder();

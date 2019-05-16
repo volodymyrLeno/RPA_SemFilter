@@ -9,25 +9,34 @@ public class WriteSimplifier {
             "(((((?!,).)*,){3}((?!(getCell|copyCell)(((?!,).)*,){3}\\3).)*\\n)*" +
             ".*editCell(((?!,).)*,){3}\\3,.*\\n)";
 
-    private static String chromeDoublePasteRegex = ".*paste,(((?!,).)*,)(((?!,).)*,)(((?!,).)*,){6}(((?!,).)*,)(((?!,).)*,).*\\n" +
+    private static String chromeDoublePasteRegex =
+            ".*paste,(((?!,).)*,)(((?!,).)*,)(((?!,).)*,){6}(((?!,).)*,)(((?!,).)*,).*\\n" +
             "(((((?!,).)*,){3}((?!copy,(((?!,).)*,){8}\\7).)*\\n)*" +
-            ".*paste,(((?!,).)*,){8}\\7\\9.*\\n)";
+            ".*paste,(((?!,).)*,){8}\\7.*\\n)";
 
-    private static String chromePasteRegex = ".*paste,(((?!,).)*,)(((?!,).)*),(((?!,).)*,){6}(((?!,).)*,)(((?!,).)*),.*\\n" +
+    private static String chromePasteRegex =
+            ".*paste,(((?!,).)*,)(((?!,).)*),(((?!,).)*,){6}(((?!,).)*,)(((?!,).)*),.*\\n" +
             "(((((?!,).)*,){3}((?!copy,(((?!,).)*,){8}\\7).)*\\n)*" +
             ".*editField,(((?!,).)*,){9}((?!(\\3\\9)).)*,(((?!,).)*,){3}\\n)";
 
-    private static String chromeConnectedPasteToEditFieldRegex = "(.*editField.*\\n)" +
-            "((.*\\n)*)" +
-            "(.*paste.*\\n)" +
-            "((.*\\n)*)" +
-            "(.*editField,(((?!,).)*,){8}(((?!,).)*,).*\\n)" +
-            "(((((?!,).)*,){3}((?!copy,(((?!,).)*,){8}\\10).)*\\n)*" +
-            ".*editField,(((?!,).)*,){8}\\10.*\\n)";
+    private static String chromeCopyBetweenEditRegex =
+            "((((?!paste).)*\\n)*)" +
+            "((.*paste,(((?!,).)*,){8}(((?!,).)*),.*\\n)*)" +
+            "(((.*\\n)*)" +
+            "(.*editField,(((?!,).)*,){8}(((?!,).)*),(((?!,).)*),.*\\n)" +
+            "(" +
+            "((((?!,).)*,){3}((?!copy,(((?!,).)*,){8}\\16).)*\\n)*" +
+            ".*editField,(((?!,).)*,){8}\\16(((?!(,|\\18)).)*),.*\\n))";
 
-    private static String chromeDoubleEditRegex = "(.*editField,(((?!,).)*,){8}(((?!,).)*,).*\\n)" +
-            "(((((?!,).)*,){3}((?!copy,(((?!,).)*,){8}\\4).)*\\n)*" +
-            ".*editField,(((?!,).)*,){8}\\4.*\\n)";
+    private static String chromePasteBetweenEditRegex =
+            "(.*editField,(((?!,).)*,){8}(((?!,).)*,)(((?!,).)*),.*\\n)" +
+                    "(" +
+                    "((((?!,).)*,){3}paste,(((?!,).)*,)(((?!,).)*),(((?!,).)*,){6}\\4.*\\n)*" +
+                    ".*editField,(((?!,).)*,){8}\\4(((\\6\\14|,).)*),.*\\n)";
+
+    private static String chromeDoubleEditRegex =
+            "(.*editField,(((?!,).)*,){8}(((?!,).)*,)(((?!,).)*),.*\\n)" +
+                    "(.*editField,(((?!,).)*,){8}\\4.*\\n)";
 
     public static boolean isRedundantEditCell(String logs) {
         Pattern pattern = Pattern.compile(editCellRegex);
@@ -56,49 +65,62 @@ public class WriteSimplifier {
         Pattern secondPattern = Pattern.compile(chromeDoublePasteRegex);
         Matcher secondMatcher = secondPattern.matcher(logs);
 
-        return firstMatcher.find() || secondMatcher.find();
+        return secondMatcher.find();
     }
 
     public static String deleteRedundantChromePaste(String logs) {
-        Pattern pattern = Pattern.compile(chromePasteRegex);
+        Pattern pattern = Pattern.compile(chromeDoublePasteRegex);
         Matcher matcher = pattern.matcher(logs);
 
-        String newLogs = logs.replaceAll(chromePasteRegex, "$11");
-        newLogs = newLogs.replaceAll(chromeDoublePasteRegex, "$11");
+//        String newLogs = logs.replaceAll(chromePasteRegex, "$11");
+        logs = logs.replaceAll(chromeDoublePasteRegex, "$11");
 
         if (matcher.find()) {
-            return deleteRedundantChromePaste(newLogs);
+            return deleteRedundantChromePaste(logs);
         }
 
-        return newLogs;
+        return logs;
     }
 
     public static boolean isRedundantChromeEditField(String logs) {
-        Pattern pastePattern = Pattern.compile(chromeConnectedPasteToEditFieldRegex);
-        Pattern editPattern = Pattern.compile(chromeDoubleEditRegex);
+        Pattern editCopyPattern = Pattern.compile(chromeCopyBetweenEditRegex);
+        Pattern editPastePattern = Pattern.compile(chromePasteBetweenEditRegex);
 
-        return pastePattern.matcher(logs).find() || editPattern.matcher(logs).find();
+        return editCopyPattern.matcher(logs).find() &&
+                !editPastePattern.matcher(logs).find();
     }
 
     public static String deleteRedundantChromeEditField(String logs) {
-        Pattern pattern = Pattern.compile(chromeConnectedPasteToEditFieldRegex);
-        Matcher matcher = pattern.matcher(logs);
+        Pattern patternCopy = Pattern.compile(chromeCopyBetweenEditRegex);
+        Matcher matcherCopy = patternCopy.matcher(logs);
 
-        logs = logs.replaceAll(chromeConnectedPasteToEditFieldRegex, "$1$2$5$7$12");
+        Pattern patternPaste = Pattern.compile(chromePasteBetweenEditRegex);
+        Matcher matcherPaste = patternPaste.matcher(logs);
 
-        if (matcher.find()) {
+        Pattern patternDouble = Pattern.compile(chromeDoubleEditRegex);
+        Matcher matcherDouble = patternDouble.matcher(logs);
+
+        if (matcherCopy.find() && !matcherPaste.find()) {
+
+            logs = matcherCopy.replaceAll(mr -> {
+                if (mr.group(8) != null &&
+                        mr.group(16) != null &&
+                        mr.group(8).equals(mr.group(16))) {
+                    return mr.group(1) + mr.group(10);
+                }
+                return mr.group(1) + mr.group(11) + mr.group(20);
+            });
+
+            logs = logs.replaceAll(chromePasteBetweenEditRegex, "$8");
             return deleteRedundantChromeEditField(logs);
         }
 
-        pattern = Pattern.compile(chromeDoubleEditRegex);
-        matcher = pattern.matcher(logs);
-
-        logs = logs.replaceAll(chromeDoubleEditRegex, "$6");
-
-        if (matcher.find()) {
+        if (matcherDouble.find()){
+            logs = logs.replaceAll(chromeDoubleEditRegex, "$8");
             return deleteRedundantChromeEditField(logs);
         }
 
         return logs;
     }
+
 }

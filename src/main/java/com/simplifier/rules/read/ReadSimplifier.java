@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 public class ReadSimplifier {
 
     public static boolean isRedundantCopy(String logs) {
-        String regex = "(.*copy.*\\n)((((?!paste|editField|editCell).)*\\n)*)(.*copy.*\\n*)";
+        String regex = "(.*copy.*\\n)((((?!paste).)*\\n)*)(.*copy.*\\n*)";
 
         Pattern p = Pattern.compile(regex);
         Matcher matcher = p.matcher(logs);
@@ -15,7 +15,7 @@ public class ReadSimplifier {
     }
 
     public static String deleteRedundantCopy(String logs) {
-        String regex = "(.*copy.*\\n)((((?!paste|editField|editCell).)*\\n)*)(.*copy.*\\n*)";
+        String regex = "(.*copy.*\\n)((((?!paste).)*\\n)*)(.*copy.*\\n*)";
 
         Pattern p = Pattern.compile(regex);
         Matcher matcher = p.matcher(logs);
@@ -30,22 +30,22 @@ public class ReadSimplifier {
     }
 
     public static boolean isSingleCopy(String logs) {
-        String regex = "((((?!copy).)*\\n)*)(.*copy.*\\n)((((?!paste|copy).)*\\n)*)";
+        String regex = "((.*\\n)*)(.*copy.*\\n)((((?!paste|copy).)+\\n)*$)";
 
         Pattern p = Pattern.compile(regex);
         Matcher matcher = p.matcher(logs);
 
-        return matcher.matches();
+        return matcher.find();
     }
 
     public static String deleteSingleCopy(String logs) {
-        String regex = "((((?!copy).)*\\n)*)(.*copy.*\\n)((((?!paste|copy).)*\\n)*)";
+        String regex = "((.*\\n)*)(.*copy.*\\n)((((?!paste|copy).)+\\n)*$)";
 
         Pattern p = Pattern.compile(regex);
         Matcher matcher = p.matcher(logs);
 
-        if (matcher.matches()) {
-            logs = logs.replaceAll(regex, "$1$5");
+        if (matcher.find()) {
+            logs = logs.replaceAll(regex, "$1$4");
             return deleteSingleCopy(logs);
         }
 
