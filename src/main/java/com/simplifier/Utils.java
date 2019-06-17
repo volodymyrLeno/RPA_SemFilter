@@ -8,12 +8,10 @@ import java.io.*;
 
 public class Utils {
 
-    private static final String SAMPLE_CSV_FILE_PATH = "logs.csv";
-
-    public String readLogsFromFile() {
+    public String readLogsFromFile(String filePath) {
         StringBuilder stringBuilder = new StringBuilder();
         try {
-            FileReader filereader = new FileReader(SAMPLE_CSV_FILE_PATH);
+            FileReader filereader = new FileReader(filePath);
             CSVReader csvReader = new CSVReaderBuilder(filereader)
                     .withSkipLines(1)
                     .build();

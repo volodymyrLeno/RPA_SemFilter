@@ -9,8 +9,9 @@ import com.simplifier.validation.Validator;
 public class Main {
 
     public static void main(String[] args) throws Exception {
+        String filePath = args[0];
         Utils utils = new Utils();
-        String logs = utils.readLogsFromFile();
+        String logs = utils.readLogsFromFile(filePath);
 
         /*
          *  Validate log if there is action without id or name
@@ -75,6 +76,7 @@ public class Main {
             }
         }
 
-        Utils.writeDataLineByLine("result.csv", sortedLogs);
+        String newFilePath = filePath.substring(0, filePath.lastIndexOf(".")) + "_filtered.csv";
+        Utils.writeDataLineByLine(newFilePath, sortedLogs);
     }
 }

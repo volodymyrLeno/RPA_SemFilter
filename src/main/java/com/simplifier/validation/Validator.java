@@ -16,9 +16,11 @@ public class Validator {
             Pattern patternName = Pattern.compile(regexName);
             Matcher matcherName = patternName.matcher(action);
 
+            /*
             if (matcherId.matches() && matcherName.matches()) {
                 throw new Exception("Target id or name was missed");
             }
+            */
         }
     }
 }
