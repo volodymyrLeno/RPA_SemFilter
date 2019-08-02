@@ -30,22 +30,22 @@ public class ReadSimplifier {
     }
 
     public static boolean isSingleCopy(String logs) {
-        String regex = "((.*\\n)*)(.*copy.*\\n)((((?!paste|copy).)+\\n)*$)";
+        String regex = "((((?!(paste|copy)).)*\\n)*)((((?!,).)*,){3}(copy|paste).*\\n)((((?!(paste|copy)).)*\\n)*)";
 
         Pattern p = Pattern.compile(regex);
         Matcher matcher = p.matcher(logs);
 
-        return matcher.find();
+        return matcher.matches();
     }
 
     public static String deleteSingleCopy(String logs) {
-        String regex = "((.*\\n)*)(.*copy.*\\n)((((?!paste|copy).)+\\n)*$)";
+        String regex = "((((?!(paste|copy)).)*\\n)*)((((?!,).)*,){3}(copy|paste).*\\n)((((?!(paste|copy)).)*\\n)*)";
 
         Pattern p = Pattern.compile(regex);
         Matcher matcher = p.matcher(logs);
 
-        if (matcher.find()) {
-            logs = logs.replaceAll(regex, "$1$4");
+        if (matcher.matches()) {
+            logs = logs.replaceAll(regex, "$1$9");
             return deleteSingleCopy(logs);
         }
 
