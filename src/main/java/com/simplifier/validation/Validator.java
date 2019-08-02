@@ -7,20 +7,23 @@ public class Validator {
 
     public static void validateForIdName(String log) throws Exception {
         for (String action : log.split("\n")) {
+            String actionRegex = "(((?!,).)*,){2}(Chrome|Excel),(editField|copy|paste|editCell|getCell).*";
+            Pattern actionPattern = Pattern.compile(actionRegex);
+            Matcher actionMatcher = actionPattern.matcher(action);
 
-            String regexId = "(((?!,).)*,){2}((?!OS-Clipboard|,).)*,(((?!,).)*,){5},.*";
-            Pattern patternId = Pattern.compile(regexId);
-            Matcher matcherId = patternId.matcher(action);
+            if (actionMatcher.matches()) {
+                String regexId = "(((?!,).)*,){8}(((?!,).)+,).*";
+                Pattern patternId = Pattern.compile(regexId);
+                Matcher matcherId = patternId.matcher(action);
 
-            String regexName = "(((?!,).)*,){2}((?!OS-Clipboard|,).)*,(((?!,).)*,){9},.*";
-            Pattern patternName = Pattern.compile(regexName);
-            Matcher matcherName = patternName.matcher(action);
+                String regexName = "(((?!,).)*,){12}(((?!,).)+,).*";
+                Pattern patternName = Pattern.compile(regexName);
+                Matcher matcherName = patternName.matcher(action);
 
-            /*
-            if (matcherId.matches() && matcherName.matches()) {
-                throw new Exception("Target id or name was missed");
+                if (!matcherId.matches() && !matcherName.matches()) {
+                    throw new Exception("Target id or name was missed");
+                }
             }
-            */
         }
     }
 }

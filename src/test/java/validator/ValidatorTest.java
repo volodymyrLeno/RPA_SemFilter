@@ -19,7 +19,7 @@ public class ValidatorTest {
     @Test(expected = Exception.class)
     public void testInvalidName() throws Exception {
         String logs = "2019-04-02T17:51:41.579Z,st,Excel,getCell,,,excel.xlsx,Sheet1,A1,,,,,[[3]],,,,\n" +
-                "2019-04-02T17:51:44.697Z,st,Chrome,clickTextField,,,,,,,INPUT,text,,,,,,\n" +
+                "2019-04-02T17:51:41.579Z,st,Chrome,editField,,,,,,,INPUT,text,,Volodymr,,,,\n" +
                 "2019-04-02T17:53:41.579Z,st,Excel,getCell,,,excel.xlsx,Sheet1,A2,,,,,[[3]],,,,\n";
         Validator.validateForIdName(logs);
     }
