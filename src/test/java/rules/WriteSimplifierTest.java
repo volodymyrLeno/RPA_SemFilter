@@ -21,12 +21,12 @@ public class WriteSimplifierTest {
 
         assertThat(WriteSimplifier.isRedundantEditCell(logs), is(equalTo(true)));
 
-        assertEquals(WriteSimplifier.deleteRedundantEditCell(logs),
-                "2019-04-09T15:15:45.862Z,st,Excel,getRange,,,test.xlsx,Sheet1,A1:F1,,,,,[[1,2,3,4,5,6]],,,,\n" +
+        assertEquals("2019-04-09T15:15:45.862Z,st,Excel,getRange,,,test.xlsx,Sheet1,A1:F1,,,,,[[1,2,3,4,5,6]],,,,\n" +
                         "2019-04-09T17:58:57.292Z,st,Chrome,editField,,,,,,,INPUT,text,Name_First,test,,,,\n" +
                         "2019-04-09T17:58:57.409Z,st,Chrome,clickTextField,,,,,,,INPUT,text,Name_Last,,,,,\n" +
                         "2019-04-09T17:58:59.057Z,st,Chrome,editField,,,,,,,INPUT,text,Name_Last,world,,,,\n" +
-                        "2019-04-09T15:15:37.970Z,st,Excel,editCell,,,test.xlsx,Sheet1,B1,,,,,10,,,,\n");
+                        "2019-04-09T15:15:37.970Z,st,Excel,editCell,,,test.xlsx,Sheet1,B1,,,,,10,,,,\n",
+                WriteSimplifier.deleteRedundantEditCell(logs));
     }
 
     @Test
@@ -41,14 +41,14 @@ public class WriteSimplifierTest {
 
         assertThat(WriteSimplifier.isRedundantEditCell(logs), is(equalTo(false)));
 
-        assertEquals(WriteSimplifier.deleteRedundantEditCell(logs),
-                "2019-04-09T15:15:45.862Z,st,Excel,getRange,,,test.xlsx,Sheet1,A1:F1,,,,,[[1,2,3,4,5,6]],,,,\n" +
+        assertEquals("2019-04-09T15:15:45.862Z,st,Excel,getRange,,,test.xlsx,Sheet1,A1:F1,,,,,[[1,2,3,4,5,6]],,,,\n" +
                         "2019-04-09T15:15:37.970Z,st,Excel,editCell,,,test.xlsx,Sheet1,B1,,,,,2,,,,\n" +
                         "2019-04-09T17:58:57.292Z,st,Chrome,editField,,,,,,,INPUT,text,Name_First,test,,,,\n" +
                         "2019-04-09T17:58:57.409Z,st,Chrome,clickTextField,,,,,,,INPUT,text,Name_Last,,,,,\n" +
                         "2019-04-09T17:58:59.057Z,st,Chrome,editField,,,,,,,INPUT,text,Name_Last,world,,,,\n" +
                         "2019-04-09T15:15:40.051Z,st,Excel,getCell,,,test.xlsx,Sheet1,B1,,,,,2,,,,\n" +
-                        "2019-04-09T15:15:37.970Z,st,Excel,editCell,,,test.xlsx,Sheet1,B1,,,,,10,,,,\n");
+                        "2019-04-09T15:15:37.970Z,st,Excel,editCell,,,test.xlsx,Sheet1,B1,,,,,10,,,,\n",
+                WriteSimplifier.deleteRedundantEditCell(logs));
     }
 
     @Test
@@ -63,14 +63,14 @@ public class WriteSimplifierTest {
 
         assertThat(WriteSimplifier.isRedundantEditCell(logs), is(equalTo(false)));
 
-        assertEquals(WriteSimplifier.deleteRedundantEditCell(logs),
-                "2019-04-09T15:15:45.862Z,st,Excel,getRange,,,test.xlsx,Sheet1,A1:F1,,,,,[[1,2,3,4,5,6]],,,,\n" +
+        assertEquals("2019-04-09T15:15:45.862Z,st,Excel,getRange,,,test.xlsx,Sheet1,A1:F1,,,,,[[1,2,3,4,5,6]],,,,\n" +
                         "2019-04-09T15:15:37.970Z,st,Excel,editCell,,,test.xlsx,Sheet1,B1,,,,,2,,,,\n" +
                         "2019-04-09T17:58:57.292Z,st,Chrome,editField,,,,,,,INPUT,text,Name_First,test,,,,\n" +
                         "2019-04-09T17:58:57.409Z,st,Chrome,clickTextField,,,,,,,INPUT,text,Name_Last,,,,,\n" +
                         "2019-04-09T17:58:59.057Z,st,Chrome,editField,,,,,,,INPUT,text,Name_Last,world,,,,\n" +
                         "2019-04-02T17:56:47.899Z,st,Excel,copyCell,,3,test.xlsx,Sheet1,B1,,,,,2\n" +
-                        "2019-04-09T15:15:37.970Z,st,Excel,editCell,,,test.xlsx,Sheet1,B1,,,,,10,,,,\n");
+                        "2019-04-09T15:15:37.970Z,st,Excel,editCell,,,test.xlsx,Sheet1,B1,,,,,10,,,,\n",
+                WriteSimplifier.deleteRedundantEditCell(logs));
     }
 
     @Test
@@ -82,10 +82,10 @@ public class WriteSimplifierTest {
 
         assertThat(WriteSimplifier.isRedundantChromePaste(logs), is(equalTo(true)));
 
-        assertEquals(WriteSimplifier.deleteRedundantChromePaste(logs),
-                "2019-04-09T20:48:11.819Z,st,Chrome,copy,,hello,,,,,INPUT,text,Name_First,hello,,,,\n" +
+        assertEquals("2019-04-09T20:48:11.819Z,st,Chrome,copy,,hello,,,,,INPUT,text,Name_First,hello,,,,\n" +
                         "2019-04-09T20:48:18.408Z,st,Excel,copyCell,,hello,test.xlsx,Sheet1,F1,,,,,[[6]],,,,\n" +
-                        "2019-04-09T20:48:19.192Z,st,Chrome,paste,,hello,,,,,INPUT,text,Name_Last,hello,,,,\n");
+                        "2019-04-09T20:48:19.192Z,st,Chrome,paste,,hello,,,,,INPUT,text,Name_Last,hello,,,,\n",
+                WriteSimplifier.deleteRedundantChromePaste(logs));
     }
 
     @Test
@@ -108,9 +108,8 @@ public class WriteSimplifierTest {
 
         assertThat(WriteSimplifier.isRedundantChromeEditField(logs), is(equalTo(true)));
 
-        assertEquals(WriteSimplifier.deleteRedundantChromeEditField(logs),
-                "2019-04-09T20:48:19.192Z,st,Chrome,paste,,6,,,,,INPUT,text,Name_Last,hello,,,,\n" +
-                        "2019-04-09T20:48:19.964Z,st,Chrome,editField,,,,,,,INPUT,text,Name_Last,hello,,,,\n");
+        assertEquals("2019-04-09T20:48:19.964Z,st,Chrome,editField,,,,,,,INPUT,text,Name_Last,hello,,,,\n",
+                WriteSimplifier.deleteRedundantChromeEditField(logs));
     }
 
     @Test
@@ -136,10 +135,9 @@ public class WriteSimplifierTest {
         assertThat(WriteSimplifier.isRedundantChromeEditField(logs), is(equalTo(true)));
 
 
-        assertEquals(WriteSimplifier.deleteRedundantChromeEditField(logs),
-                "2019-04-29T16:51:37.879Z,st,Chrome,paste,,TEST,,,,,INPUT,text,Name_First,,,,,\n" +
-                        "2019-04-29T16:51:42.795Z,st,Chrome,paste,,hey,,,,,INPUT,text,Name_First,hey,,,,\n" +
+        assertEquals("2019-04-29T16:51:42.795Z,st,Chrome,paste,,hey,,,,,INPUT,text,Name_First,hey,,,,\n" +
                         "2019-04-29T16:51:44.332Z,st,Chrome,paste,,hey,,,,,INPUT,text,Name_First,heyhey,,,,\n" +
-                        "2019-04-29T16:51:45.657Z,st,Chrome,editField,,,,,,,INPUT,text,Name_First,heyheyhey,,,,\n");
+                        "2019-04-29T16:51:45.657Z,st,Chrome,editField,,,,,,,INPUT,text,Name_First,heyheyhey,,,,\n",
+                WriteSimplifier.deleteRedundantChromeEditField(logs));
     }
 }
