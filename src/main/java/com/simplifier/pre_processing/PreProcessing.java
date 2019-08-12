@@ -57,4 +57,16 @@ public class PreProcessing {
         logs = logs.replaceAll("(.*getCell.*(\\n|$)|.*getRange.*(\\n|$))", "");
         return logs;
     }
+
+    public static String deleteLink(String log) {
+        String linkRegex = "(.*clickLink(((?!,).)*,){13}(((?!,).)*),.*\n)" +
+                ".*link,\\4.*(\\n|$)";
+
+        if (Pattern.compile(linkRegex).matcher(log).find()) {
+            log = log.replaceAll(linkRegex, "$1");
+            return deleteLink(log);
+        }
+
+        return log;
+    }
 }

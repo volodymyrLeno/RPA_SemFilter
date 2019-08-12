@@ -27,6 +27,7 @@ public class Main {
 
         sortedLogs = PreProcessing.deleteChromeClipboardCopy(sortedLogs);
         sortedLogs = PreProcessing.mergeNavigationCellCopy(sortedLogs);
+        sortedLogs = PreProcessing.deleteLink(sortedLogs);
         System.out.println("AFTER PRE PROCESSING\n");
         System.out.println(sortedLogs);
 
@@ -69,7 +70,7 @@ public class Main {
                 System.out.println(sortedLogs);
             }
 
-            if (WriteSimplifier.isRedundantChromeEditField(sortedLogs)){
+            if (WriteSimplifier.isRedundantChromeEditField(sortedLogs)) {
                 sortedLogs = WriteSimplifier.deleteRedundantChromeEditField(sortedLogs);
                 System.out.println("\n");
                 System.out.println(sortedLogs);
