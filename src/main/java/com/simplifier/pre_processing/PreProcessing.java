@@ -15,6 +15,40 @@ public class PreProcessing {
         return actions.stream().map(el -> el + "\n").collect(Collectors.joining());
     }
 
+    public static String identifyPasteAction(String log) {
+        String cellRegex = "(.*copyCell,(((?!,).)*,)\"(((?!,).)*)\",.*\\n)" +
+                "((.*\\n)*)" +
+                "((.*)editCell,(((?!,).)*,)(((?!,).)*,)((((?!,).)*,){7}\\4.*)\\n)";
+        Pattern p = Pattern.compile(cellRegex);
+        Matcher matcher = p.matcher(log);
+        if (matcher.find()) {
+            log = log.replaceAll(cellRegex, "$1$6$9pasteIntoCell,$10\"$4\",$14\n");
+            return identifyPasteAction(log);
+        }
+
+        String rangeRegex = "(.*copyRange,(((?!,).)*,)(((?!,).)*,)(((?!,).)*,){7}(((?!,).)*,).*\\n)" +
+                "((.*\\n)*)" +
+                "((.*)editRange,(((?!,).)*,)(((?!,).)*,)((((?!,).)*,){7}\\8.*)\\n)";
+        p = Pattern.compile(rangeRegex);
+        matcher = p.matcher(log);
+        if (matcher.find()) {
+            log = log.replaceAll(rangeRegex, "$1$10$13pasteIntoRange,$14$4$18\n");
+            return identifyPasteAction(log);
+        }
+
+        String chromeRegex = "(.*Chrome,copy,(((?!,).)*,)(((?!,).)*,).*\\n)" +
+                "((.*\\n)*)" +
+                "((.*)editCell,(((?!,).)*,)(((?!,).)*,)((((?!,).)*,){7}\\4.*\\n))";
+        p = Pattern.compile(chromeRegex);
+        matcher = p.matcher(log);
+        if (matcher.find()) {
+            log = log.replaceAll(chromeRegex, "$1$6$9pasteIntoCell,$10$4$14");
+            return identifyPasteAction(log);
+        }
+
+        return log;
+    }
+
     public static String deleteChromeClipboardCopy(String logs) {
         String regex = "(.*Chrome,copy.*\\n)(.*OS-Clipboard,copy.*\\n)";
 

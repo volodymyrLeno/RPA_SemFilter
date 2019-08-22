@@ -5,28 +5,28 @@ import java.util.regex.Pattern;
 
 public class WriteSimplifier {
 
-    private static String editCellRegex = ".*editCell(((?!,).)*,){3}(((?!,).)*),.*\\n" +
-            "(((((?!,).)*,){3}((?!(getCell|copyCell)(((?!,).)*,){3}\\3).)*\\n)*" +
-            ".*editCell(((?!,).)*,){3}\\3,.*\\n)";
+    private static String editCellRegex = ".*editCell,(((?!,).)*,){4}(((?!,).)*),.*\\n" +
+            "(((((?!,).)*,){3}((?!(getCell|copyCell),(((?!,).)*,){4}\\3).)*\\n)*" +
+            ".*editCell,(((?!,).)*,){4}\\3,.*\\n)";
 
     private static String chromeDoublePasteRegex =
             ".*paste,(((?!,).)*,)(((?!,).)*,)(((?!,).)*,){6}(((?!,).)*,)(((?!,).)*,).*\\n" +
-            "(((((?!,).)*,){3}((?!copy,(((?!,).)*,){8}\\7).)*\\n)*" +
-            ".*paste,(((?!,).)*,){8}\\7.*\\n)";
+                    "(((((?!,).)*,){3}((?!copy,(((?!,).)*,){8}\\7).)*\\n)*" +
+                    ".*paste,(((?!,).)*,){8}\\7.*\\n)";
 
     private static String chromePasteRegex =
             ".*paste,(((?!,).)*,)(((?!,).)*),(((?!,).)*,){6}(((?!,).)*,)(((?!,).)*),.*\\n" +
-            "(((((?!,).)*,){3}((?!copy,(((?!,).)*,){8}\\7).)*\\n)*" +
-            ".*editField,(((?!,).)*,){9}((?!(\\3\\9)).)*,(((?!,).)*,){3}\\n)";
+                    "(((((?!,).)*,){3}((?!copy,(((?!,).)*,){8}\\7).)*\\n)*" +
+                    ".*editField,(((?!,).)*,){9}((?!(\\3\\9)).)*,(((?!,).)*,){3}\\n)";
 
     private static String chromeCopyBetweenEditRegex =
             "((((?!paste).)*\\n)*)" +
-            "((.*paste,(((?!,).)*,){8}(((?!,).)*),.*\\n)*)" +
-            "(((.*\\n)*)" +
-            "(.*editField,(((?!,).)*,){8}(((?!,).)*),(((?!,).)*),.*\\n)" +
-            "(" +
-            "((((?!,).)*,){3}((?!copy,(((?!,).)*,){8}\\16).)*\\n)*" +
-            ".*editField,(((?!,).)*,){8}\\16(((?!(,|\\18)).)*),.*\\n))";
+                    "((.*paste,(((?!,).)*,){8}(((?!,).)*),.*\\n)*)" +
+                    "(((.*\\n)*)" +
+                    "(.*editField,(((?!,).)*,){8}(((?!,).)*),(((?!,).)*),.*\\n)" +
+                    "(" +
+                    "((((?!,).)*,){3}((?!copy,(((?!,).)*,){8}\\16).)*\\n)*" +
+                    ".*editField,(((?!,).)*,){8}\\16(((?!(,|\\18)).)*),.*\\n))";
 
     private static String chromePasteBetweenEditRegex =
             "(.*editField,(((?!,).)*,){8}(((?!,).)*,)(((?!,).)*),.*\\n)" +
@@ -115,12 +115,39 @@ public class WriteSimplifier {
             return deleteRedundantChromeEditField(logs);
         }
 
-        if (matcherDouble.find()){
+        if (matcherDouble.find()) {
             logs = logs.replaceAll(chromeDoubleEditRegex, "$8");
             return deleteRedundantChromeEditField(logs);
         }
 
         return logs;
+    }
+
+    public static boolean isRedundantPasteIntoCell(String log) {
+        String regex = ".*pasteIntoCell,(((?!,).)*,)((((?!,).)*,){3}(((?!,).)*,)).*\\n" +
+                "(((((?!,).)*,){3}((?!copyCell,(((?!,).)*,){4}\\6).)*\\n)*" +
+                ".*pasteIntoCell,(((?!,).)*,)\\3.*\\n)";
+
+        Pattern p = Pattern.compile(regex);
+        Matcher matcher = p.matcher(log);
+
+        return matcher.find();
+    }
+
+    public static String deleteRedundantPasteIntoCell(String log) {
+        String regex = ".*pasteIntoCell,(((?!,).)*,)((((?!,).)*,){3}(((?!,).)*,)).*\\n" +
+                "(((((?!,).)*,){3}((?!copyCell,(((?!,).)*,){4}\\6).)*\\n)*" +
+                ".*pasteIntoCell,(((?!,).)*,)\\3.*\\n)";
+
+        Pattern p = Pattern.compile(regex);
+        Matcher matcher = p.matcher(log);
+
+        if (matcher.find()) {
+            log = log.replaceAll(regex, "$8");
+            return deleteRedundantPasteIntoCell(log);
+        }
+
+        return log;
     }
 
 }

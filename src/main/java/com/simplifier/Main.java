@@ -28,6 +28,7 @@ public class Main {
         sortedLogs = PreProcessing.deleteChromeClipboardCopy(sortedLogs);
         sortedLogs = PreProcessing.mergeNavigationCellCopy(sortedLogs);
         sortedLogs = PreProcessing.deleteLink(sortedLogs);
+        sortedLogs = PreProcessing.identifyPasteAction(sortedLogs);
         System.out.println("AFTER PRE PROCESSING\n");
         System.out.println(sortedLogs);
 
@@ -38,7 +39,8 @@ public class Main {
                 NavigationSimplifier.isRedundantClickTextField(sortedLogs) ||
                 WriteSimplifier.isRedundantChromePaste(sortedLogs) ||
                 WriteSimplifier.isRedundantEditCell(sortedLogs) ||
-                WriteSimplifier.isRedundantChromeEditField(sortedLogs)) {
+                WriteSimplifier.isRedundantChromeEditField(sortedLogs) ||
+                WriteSimplifier.isRedundantPasteIntoCell(sortedLogs)) {
 
             if (ReadSimplifier.isRedundantCopy(sortedLogs)) {
                 sortedLogs = ReadSimplifier.deleteRedundantCopy(sortedLogs);
@@ -72,6 +74,12 @@ public class Main {
 
             if (WriteSimplifier.isRedundantChromeEditField(sortedLogs)) {
                 sortedLogs = WriteSimplifier.deleteRedundantChromeEditField(sortedLogs);
+                System.out.println("\n");
+                System.out.println(sortedLogs);
+            }
+
+            if (WriteSimplifier.isRedundantPasteIntoCell(sortedLogs)) {
+                sortedLogs = WriteSimplifier.deleteRedundantPasteIntoCell(sortedLogs);
                 System.out.println("\n");
                 System.out.println(sortedLogs);
             }
