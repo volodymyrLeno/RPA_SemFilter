@@ -150,4 +150,31 @@ public class WriteSimplifier {
         return log;
     }
 
+    public static boolean isRedundantPasteIntoRange(String log) {
+        String regex = ".*pasteIntoRange,(((?!,).)*,)((((?!,).)*,){3}(((?!,).)*,)).*\\n" +
+                "(((((?!,).)*,){3}((?!copyRange,(((?!,).)*,){4}\\6).)*\\n)*" +
+                ".*pasteIntoRange,(((?!,).)*,){4}\\6.*\\n)";
+
+        Pattern p = Pattern.compile(regex);
+        Matcher matcher = p.matcher(log);
+
+        return matcher.find();
+    }
+
+    public static String deleteRedundantPasteIntoRange(String log) {
+        String regex = ".*pasteIntoRange,(((?!,).)*,)((((?!,).)*,){3}(((?!,).)*,)).*\\n" +
+                "(((((?!,).)*,){3}((?!copyRange,(((?!,).)*,){4}\\6).)*\\n)*" +
+                ".*pasteIntoRange,(((?!,).)*,){4}\\6.*\\n)";
+
+        Pattern p = Pattern.compile(regex);
+        Matcher matcher = p.matcher(log);
+
+        if (matcher.find()) {
+            log = log.replaceAll(regex, "$8");
+            return deleteRedundantPasteIntoCell(log);
+        }
+
+        return log;
+    }
+
 }
