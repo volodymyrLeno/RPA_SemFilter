@@ -1,11 +1,11 @@
 package com.simplifier;
 
-import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
-import com.opencsv.CSVWriter;
+import com.opencsv.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Utils {
 
@@ -27,7 +27,6 @@ public class Utils {
             String[] dataArray = data.split("\n");
             for (String row : dataArray) {
                 String[] cell = row.split(",");
-                System.out.println(cell[0].codePointAt(0));
                 writer.writeNext(cell);
             }
             writer.close();
@@ -36,18 +35,23 @@ public class Utils {
         }
     }
 
-    public String readLogsFromFile(String filePath) {
-        StringBuilder stringBuilder = new StringBuilder();
+    public Map<String, StringBuilder> readLogsFromFile(String filePath) {
+        Map<String, StringBuilder> cases = new HashMap<>();
+
         try {
+            RFC4180Parser rfc4180Parser = new RFC4180ParserBuilder().build();
             BufferedReader filereader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8));
             CSVReader csvReader = new CSVReaderBuilder(filereader)
                     .withSkipLines(1)
+                    .withCSVParser(rfc4180Parser)
                     .build();
 
             String[] nextLine;
             while ((nextLine = csvReader.readNext()) != null) {
-                System.out.println(nextLine[0].codePointAt(0));
-                stringBuilder.append(String.join(",", nextLine)).append("\n");
+                if (cases.get(nextLine[0]) == null) {
+                    cases.put(nextLine[0], new StringBuilder());
+                }
+                cases.get(nextLine[0]).append(String.join(",", nextLine)).append("\n");
             }
 
             csvReader.close();
@@ -56,6 +60,6 @@ public class Utils {
             e.printStackTrace();
         }
 
-        return stringBuilder.toString();
+        return cases;
     }
 }
