@@ -4,29 +4,25 @@ import com.opencsv.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Utils {
 
     public static void writeDataLineByLine(String filePath, String data) {
-        File file = new File(filePath);
         try {
-            FileOutputStream os = new FileOutputStream(file);
-            os.write(0xef);
-            os.write(0xbb);
-            os.write(0xbf);
-            CSVWriter writer = new CSVWriter(new OutputStreamWriter(os));
+            CSVWriter writer = new CSVWriter(new FileWriter(filePath), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER);
 
-            String[] header = {"timeStamp", "userID	", "targetApp", "eventType", "url", "content", "target.workbookName	",
+            String[] header = {"timeStamp", "userID	", "targetApp", "eventType", "url", "content", "target.workbookName",
                     "target.sheetName", "target.id", "target.class", "target.tagName", "target.type	", "target.name",
-                    "target.value", "target.innerText", "target.checked", "target.href", "target.option"
+                    "target.value", "target.innerText", "target.checked", "target.href", "target.option", "target.title", "target.innerHTML"
             };
             writer.writeNext(header);
 
             String[] dataArray = data.split("\n");
             for (String row : dataArray) {
-                String[] cell = row.split(",");
+                String[] cell = row.split(",", -1);
                 writer.writeNext(cell);
             }
             writer.close();
@@ -51,7 +47,7 @@ public class Utils {
                 if (cases.get(nextLine[0]) == null) {
                     cases.put(nextLine[0], new StringBuilder());
                 }
-                cases.get(nextLine[0]).append(String.join(",", nextLine)).append("\n");
+                cases.get(nextLine[0]).append(String.join(",",  Arrays.copyOfRange(nextLine, 1, nextLine.length))).append("\n");
             }
 
             csvReader.close();
