@@ -18,7 +18,7 @@ public class ReadSimplifierTest {
                 "2019-04-02T17:56:47.899Z,st,Excel,copyCell,,3,excel.xlsx,Sheet1,B1,,,,,[[3]]\n" +
                 "2019-04-03T06:28:26.289Z,st,Chrome,editField,,,,,Date-date,,INPUT,text,date,17-10-2019,,,,\n";
 
-        assertThat(ReadSimplifier.isRedundantCopy(logs), is(equalTo(true)));
+        assertThat(ReadSimplifier.containsRedundantCopy(logs), is(equalTo(true)));
 
         assertEquals(ReadSimplifier.deleteRedundantCopy(logs),
                 "2019-04-02T17:56:41.578Z,st,Excel,getCell,,,excel.xlsx,Sheet1,C1,,,,,[[3]],,,,\n" +
@@ -34,7 +34,7 @@ public class ReadSimplifierTest {
                 "2019-04-02T17:56:47.899Z,st,Excel,copyCell,,3,excel.xlsx,Sheet1,B1,,,,,[[3]]\n" +
                 "2019-04-02T17:56:40.656Z,st,Chrome,editField,,,,,,,INPUT,text,SingleLine,\n";
 
-        assertThat(ReadSimplifier.isRedundantCopy(logs), is(equalTo(false)));
+        assertThat(ReadSimplifier.containsRedundantCopy(logs), is(equalTo(false)));
 
         assertEquals(ReadSimplifier.deleteRedundantCopy(logs), logs);
     }
@@ -45,7 +45,7 @@ public class ReadSimplifierTest {
                 "2019-04-02T17:56:47.899Z,st,Excel,copyCell,,3,excel.xlsx,Sheet1,B1,,,,,[[3]]\n" +
                 "2019-04-03T06:28:26.289Z,st,Chrome,editField,,,,,Date-date,,INPUT,text,date,17-10-2019,,,,\n";
 
-        assertThat(ReadSimplifier.isSingleCopy(logs), is(equalTo(true)));
+        assertThat(ReadSimplifier.containsSingleCopy(logs), is(equalTo(true)));
 
         assertEquals(ReadSimplifier.deleteSingleCopy(logs),
                 "2019-04-02T17:56:41.578Z,st,Excel,getCell,,,excel.xlsx,Sheet1,C1,,,,,[[3]],,,,\n" +
@@ -59,7 +59,7 @@ public class ReadSimplifierTest {
                 "2019-04-03T06:28:26.289Z,st,Chrome,editField,,,,,Date-date,,INPUT,text,date,17-10-2019,,,,\n" +
                 "2019-04-02T17:56:47.899Z,st,Excel,copyCell,,3,excel.xlsx,Sheet1,C1,,,,,[[3]]\n";
 
-        assertThat(ReadSimplifier.isSingleCopy(logs), is(equalTo(false)));
+        assertThat(ReadSimplifier.containsSingleCopy(logs), is(equalTo(false)));
 
         assertEquals(ReadSimplifier.deleteSingleCopy(logs), logs);
     }
@@ -71,7 +71,7 @@ public class ReadSimplifierTest {
                 "2019-04-02T17:56:47.899Z,st,Excel,copyCell,,3,excel.xlsx,Sheet1,C1,,,,,[[3]]\n" +
                 "2019-04-02T17:56:44.946Z,st,Chrome,paste,,3,,,,,INPUT,text,SingleLine,,,,,\n";
 
-        assertThat(ReadSimplifier.isSingleCopy(logs), is(equalTo(false)));
+        assertThat(ReadSimplifier.containsSingleCopy(logs), is(equalTo(false)));
 
         assertEquals(ReadSimplifier.deleteSingleCopy(logs), logs);
     }

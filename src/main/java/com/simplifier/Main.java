@@ -57,8 +57,8 @@ public class Main {
         System.out.println("AFTER PRE PROCESSING\n");
         System.out.println(sortedLogs);
 
-        while (ReadSimplifier.isRedundantCopy(sortedLogs) ||
-                ReadSimplifier.isSingleCopy(sortedLogs) ||
+        while (ReadSimplifier.containsRedundantCopy(sortedLogs) ||
+                ReadSimplifier.containsSingleCopy(sortedLogs) ||
                 NavigationSimplifier.isRedundantClickTextField(sortedLogs) ||
                 WriteSimplifier.isRedundantChromePaste(sortedLogs) ||
                 WriteSimplifier.isRedundantEditCell(sortedLogs) ||
@@ -66,13 +66,13 @@ public class Main {
                 WriteSimplifier.isRedundantPasteIntoCell(sortedLogs) ||
                 WriteSimplifier.isRedundantPasteIntoRange(sortedLogs)) {
 
-            if (ReadSimplifier.isRedundantCopy(sortedLogs)) {
+            if (ReadSimplifier.containsRedundantCopy(sortedLogs)) {
                 sortedLogs = ReadSimplifier.deleteRedundantCopy(sortedLogs);
                 System.out.println("\n");
                 System.out.println(sortedLogs);
             }
 
-            if (ReadSimplifier.isSingleCopy(sortedLogs)) {
+            if (ReadSimplifier.containsSingleCopy(sortedLogs)) {
                 sortedLogs = ReadSimplifier.deleteSingleCopy(sortedLogs);
                 System.out.println("\n");
                 System.out.println(sortedLogs);
