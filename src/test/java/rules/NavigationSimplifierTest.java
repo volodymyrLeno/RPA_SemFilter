@@ -17,9 +17,9 @@ public class NavigationSimplifierTest {
                 "2019-04-02T17:51:44.697Z,st,Chrome,clickTextField,,,,,,,INPUT,text,SingleLine,,,,,\n" +
                 "2019-04-02T17:53:41.579Z,st,Excel,getCell,,,excel.xlsx,Sheet1,A2,,,,,[[3]],,,,\n";
 
-        assertThat(NavigationSimplifier.isRedundantClickTextField(logs), is(equalTo(true)));
+        assertThat(NavigationSimplifier.containsRedundantClickTextField(logs), is(equalTo(true)));
 
-        assertEquals(NavigationSimplifier.deleteRedundantClickTextField(logs),
+        assertEquals(NavigationSimplifier.removeRedundantClickTextField(logs),
                 "2019-04-02T17:51:41.579Z,st,Excel,getCell,,,excel.xlsx,Sheet1,A1,,,,,[[3]],,,,\n" +
                         "2019-04-02T17:53:41.579Z,st,Excel,getCell,,,excel.xlsx,Sheet1,A2,,,,,[[3]],,,,\n");
     }

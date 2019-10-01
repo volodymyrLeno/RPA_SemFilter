@@ -45,15 +45,15 @@ public class ReadSimplifier {
     /**
      * This method is used to check if the log contains a
      * pattern that matches {@link ReadSimplifier#redundantFirstCopyRegex},
-     * i.e the log contains two "copy" actions, ant there are any number of action
+            * i.e the log contains two "copy" actions, ant there are any number of action
      * between them except "paste" action.
      * <p>
      * The method checks if the log contains a pattern which contains
      * any number of actions except "paste" action between two "copy"
-     * actions.
+            * actions.
      * </p>
-     *
-     * @param   log the log that contains input actions.
+            *
+            * @param   log the log that contains input actions.
      * @return  <code>true</code> if the log contains pattern that
      *          matches {@link ReadSimplifier#redundantFirstCopyRegex};
      *          <code>false</code> otherwise.

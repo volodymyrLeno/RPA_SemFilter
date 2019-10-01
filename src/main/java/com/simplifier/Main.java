@@ -59,7 +59,7 @@ public class Main {
 
         while (ReadSimplifier.containsRedundantCopy(sortedLogs) ||
                 ReadSimplifier.containsSingleCopy(sortedLogs) ||
-                NavigationSimplifier.isRedundantClickTextField(sortedLogs) ||
+                NavigationSimplifier.containsRedundantClickTextField(sortedLogs) ||
                 WriteSimplifier.isRedundantChromePaste(sortedLogs) ||
                 WriteSimplifier.isRedundantEditCell(sortedLogs) ||
                 WriteSimplifier.isRedundantChromeEditField(sortedLogs) ||
@@ -78,8 +78,8 @@ public class Main {
                 System.out.println(sortedLogs);
             }
 
-            if (NavigationSimplifier.isRedundantClickTextField(sortedLogs)) {
-                sortedLogs = NavigationSimplifier.deleteRedundantClickTextField(sortedLogs);
+            if (NavigationSimplifier.containsRedundantClickTextField(sortedLogs)) {
+                sortedLogs = NavigationSimplifier.removeRedundantClickTextField(sortedLogs);
                 System.out.println("\n");
                 System.out.println(sortedLogs);
             }
