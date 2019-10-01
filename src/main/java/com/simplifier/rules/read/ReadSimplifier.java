@@ -101,11 +101,11 @@ public class ReadSimplifier {
      * @param log   the log that contains input actions.
      * @return      the log without redundant "copy" actions.
      */
-    public static String deleteRedundantCopy(String log) {
+    public static String removeRedundantCopy(String log) {
         log = log.replaceAll(redundantFirstCopyRegex, "$4");
 
         if (containsRedundantCopy(log)) {
-            return deleteRedundantCopy(log);
+            return removeRedundantCopy(log);
         }
 
         return log;
@@ -126,11 +126,11 @@ public class ReadSimplifier {
      * @param   log the log that contains input actions.
      * @return  the log without single "copy" action.
      */
-    public static String deleteSingleCopy(String log) {
+    public static String removeSingleCopy(String log) {
         log = log.replaceAll(singleCopyRegex, "$1$13");
 
         if (containsSingleCopy(log)) {
-            return deleteSingleCopy(log);
+            return removeSingleCopy(log);
         }
 
         return log;

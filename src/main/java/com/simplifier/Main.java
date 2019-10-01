@@ -67,13 +67,13 @@ public class Main {
                 WriteSimplifier.isRedundantPasteIntoRange(sortedLogs)) {
 
             if (ReadSimplifier.containsRedundantCopy(sortedLogs)) {
-                sortedLogs = ReadSimplifier.deleteRedundantCopy(sortedLogs);
+                sortedLogs = ReadSimplifier.removeRedundantCopy(sortedLogs);
                 System.out.println("\n");
                 System.out.println(sortedLogs);
             }
 
             if (ReadSimplifier.containsSingleCopy(sortedLogs)) {
-                sortedLogs = ReadSimplifier.deleteSingleCopy(sortedLogs);
+                sortedLogs = ReadSimplifier.removeSingleCopy(sortedLogs);
                 System.out.println("\n");
                 System.out.println(sortedLogs);
             }
