@@ -14,7 +14,7 @@ public class Utils {
         try {
             CSVWriter writer = new CSVWriter(new FileWriter(filePath), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER);
 
-            String[] header = {"timeStamp", "userID	", "targetApp", "eventType", "url", "content", "target.workbookName",
+            String[] header = {"caseID","timeStamp", "userID", "targetApp", "eventType", "url", "content", "target.workbookName",
                     "target.sheetName", "target.id", "target.class", "target.tagName", "target.type	", "target.name",
                     "target.value", "target.innerText", "target.checked", "target.href", "target.option", "target.title", "target.innerHTML"
             };
