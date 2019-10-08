@@ -10,10 +10,9 @@ import java.util.regex.Pattern;
  * List of "Navigation" actions:
  * <ul>
  *     <li>
- *         <h6>clickTextField</h1>
- *         <p>
+ *         ClickTextField
+ *         <br>
  *         Any "clickTextField" action is redundant.
- *         </p>
  *     </li>
  * </ul>
  */
@@ -23,7 +22,7 @@ public class NavigationSimplifier {
      * This is regular expression that corresponds to the case when
      * there is "clickTextField" action.
      */
-    private static String redundantClickTextFieldRegex = "((((?!,).)*,){3}clickTextField,.*\\n*)";
+    private static String redundantClickTextFieldRegex = "((((?!,).)*,){3}\"clickTextField\",.*\\n*)";
 
     /**
      * This method is used to check if the log contains a

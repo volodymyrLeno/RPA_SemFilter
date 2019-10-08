@@ -71,22 +71,5 @@ public class PreProcessingTest {
                 "2019-04-09T15:15:46.372Z,st,Excel,editCell,,,test.xlsx,Sheet1,F2,,,,,6,,,,\n" +
                         "2019-04-09T15:15:47.349Z,st,Excel,copyCell,,6,test.xlsx,Sheet1,F2,,,,,6,,,,\n");
     }
-
-    @Test
-    public void testDeleteLinkFound() {
-        String log = "2019-08-12T10:14:43.769Z,st,Chrome,clickLink,,,,,,,A,,,,Jon Ha,,http://jon-han.com/,\n" +
-                "2019-08-12T10:14:43.863Z,st,Chrome,link,http://jon-han.com/,,,,,,,,,,,,,";
-
-        assertEquals("2019-08-12T10:14:43.769Z,st,Chrome,clickLink,,,,,,,A,,,,Jon Ha,,http://jon-han.com/,\n",
-                PreProcessing.deleteLink(log));
-    }
-
-    @Test
-    public void testDeleteLinkNotFound() {
-        String log = "2019-08-12T10:14:43.769Z,st,Chrome,clickLink,,,,,,,A,,,,Jon Ha,,http://jon-han.com/,\n" +
-                "2019-08-12T10:14:43.863Z,st,Chrome,link,http://han.com/,,,,,,,,,,,,,";
-
-        assertEquals(log, PreProcessing.deleteLink(log));
-    }
 }
 

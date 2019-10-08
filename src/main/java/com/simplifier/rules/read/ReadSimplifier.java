@@ -4,21 +4,43 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * This class consists of methods that operate on log:
+ * This class consists of methods that operate on the log:
  * check if log contains redundant read action, and if so,
- * remove them and return new log.
+ * remove them and return a new log.
+ * <br><br>
  * List of "Read" actions:
  * <ul>
  *     <li>
- *         <h6>copy</h1>
- *         <p>
- *         If there are any number of actions between two "copy" actions
- *         except "paste" action, the first "copy" action is redundant.
- *         </p>
- *         <p>
- *         If the log contains single "copy" action and there is no "paste"
- *         action after it, the "copy" action is redundant.
- *         </p>
+ *         Copy
+ *         <ul>
+ *             <li>
+ *                 If there is any number of actions between two "copy" actions
+ *                 except "paste" action, the first "copy" action is redundant.
+ *                 <br>
+ *                 Example:
+ *                 <pre>
+ *                     <mark>"Chrome", "copy", "text"</mark>
+ *                     "Chrome", "editField", "text"
+ *                     "Chrome", "editField", "text"
+ *                     <mark>"Chrome", "copy", "text"</mark>
+ *                 </pre>
+ *                 First "copy" action is redundant.
+ *                 <br><br>
+ *             </li>
+ *             <li>
+ *                 If the log contains a single "copy" action and there is no "paste"
+ *                 action after it, the "copy" action is redundant.
+ *                 <br>
+ *                 Example:
+ *                 <pre>
+ *                     <mark>"Chrome", "copy", "text"</mark>
+ *                     "Chrome", "editField", "text"
+ *                     "Chrome", "editField", "text"
+ *                 </pre>
+ *                 "Copy" action is redundant.
+ *                 <br><br>
+ *             </li>
+ *         </ul>
  *     </li>
  * </ul>
  */
@@ -26,34 +48,34 @@ public class ReadSimplifier {
 
     /**
      * This is regular expression that corresponds to the case when
-     * there are any number of actions except "paste" action
+     * there is any number of actions except "paste" action
      * between two "copy" actions.
      */
-    private static String redundantFirstCopyRegex = "((((?!,).)*,){3}copy.*\\n)" +
-                                                    "((((?!(((?!,).)*,){3}paste,(((?!,).)*,){15}).)*\\n)*" +
-                                                    "(((?!,).)*,){3}copy.*\\n*)";
+    private static String redundantFirstCopyRegex = "((((?!,).)*,){3}\"copy.*\\n)" +
+                                                    "((((?!(((?!,).)*,){3}\"paste(((?!,).)*,){15}).)*\\n)*" +
+                                                    "(((?!,).)*,){3}\"copy.*\\n*)";
 
     /**
-     * This is regular expression that corresponds to the case when
-     * the log contains single "copy" action and there is no paste
+     * This is a regular expression that corresponds to the case when
+     * the log contains a single "copy" action and there is no paste
      * action after it.
      */
-    private static String singleCopyRegex = "((((?!(((?!,).)*,){3}copy,(((?!,).)*,){15}).)*\\n)*)" +
-                                            "((((?!,).)*,){3}(copy,).*\\n*)" +
-                                            "((((?!(((?!,).)*,){3}(paste|copy),(((?!,).)*,){15}).)*\\n*)*)";
+    private static String singleCopyRegex = "((((?!(((?!,).)*,){3}\"copy(((?!,).)*,){15}).)*\\n)*)" +
+                                            "((((?!,).)*,){3}(\"copy).*\\n*)" +
+                                            "((((?!(((?!,).)*,){3}(\"paste|\"copy)(((?!,).)*,){15}).)*\\n*)*)";
 
     /**
      * This method is used to check if the log contains a
      * pattern that matches {@link ReadSimplifier#redundantFirstCopyRegex},
-            * i.e the log contains two "copy" actions, ant there are any number of action
+     * i.e the log contains two "copy" actions, and there is any number of action
      * between them except "paste" action.
      * <p>
-     * The method checks if the log contains a pattern which contains
+     * The method checks if the log contains a pattern that contains
      * any number of actions except "paste" action between two "copy"
-            * actions.
+     * actions.
      * </p>
-            *
-            * @param   log the log that contains input actions.
+     *
+     * @param   log the log that contains input actions.
      * @return  <code>true</code> if the log contains pattern that
      *          matches {@link ReadSimplifier#redundantFirstCopyRegex};
      *          <code>false</code> otherwise.
@@ -68,10 +90,10 @@ public class ReadSimplifier {
     /**
      * This method is used to check if the log contains a
      * pattern that matches {@link ReadSimplifier#singleCopyRegex},
-     * i.e the log contains single "copy" action and there is no "paste"
+     * i.e the log contains a single "copy" action and there is no "paste"
      * action after it.
      * <p>
-     * The method checks if the log contains a pattern which contains
+     * The method checks if the log contains a pattern that contains a
      * single "copy" action and there is no "paste" action after it.
      * </p>
      *
@@ -91,9 +113,9 @@ public class ReadSimplifier {
      * from the log.
      * <p>
      * If the log contains pattern that matches {@link ReadSimplifier#redundantFirstCopyRegex},
-     * the method will remove first "copy" action in the pattern. $4 is a parameter
-     * of {@link ReadSimplifier#redundantFirstCopyRegex} that is responsible for
-     * every action after first "copy" action and the second "copy" action in the pattern.
+     * the method will remove first "copy" action in the pattern. $4 is a parameter of
+     * {@link ReadSimplifier#redundantFirstCopyRegex} that is responsible for every action
+     * after the first "copy" action and the second "copy" action in the pattern.
      * The method will be called again if the log contains redundant "copy" action after replacing the
      * pattern that matches {@link ReadSimplifier#redundantFirstCopyRegex} until there are none of them.
      * </p>
@@ -120,14 +142,14 @@ public class ReadSimplifier {
      * of {@link ReadSimplifier#singleCopyRegex} that is responsible for
      * every action before single "copy" action. $13 is a parameter
      * of {@link ReadSimplifier#singleCopyRegex} that is responsible for
-     * every action after single "copy" action.
+     * every action after a single "copy" action.
      * </p>
      *
      * @param   log the log that contains input actions.
      * @return  the log without single "copy" action.
      */
     public static String removeSingleCopy(String log) {
-        log = log.replaceAll(singleCopyRegex, "$1$13");
+        log = log.replaceAll(singleCopyRegex, "$1$12");
 
         if (containsSingleCopy(log)) {
             return removeSingleCopy(log);

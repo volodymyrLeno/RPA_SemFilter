@@ -18,13 +18,11 @@ public class Main {
         String filePath = args[0];
         Utils utils = new Utils();
         Map<String, StringBuilder> cases = utils.readLogsFromFile(filePath);
-
         Map<String, String> result = cases.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, logCase -> {
                     String logs = logCase.getValue().toString();
                     return applySimplifier(logs);
                 }));
-
         String writableLog = result.entrySet().stream()
                 .map(e -> Arrays.stream(e.getValue().split("\\r?\\n"))
                         .map(v -> e.getKey() + "," + v + "\n")
@@ -34,87 +32,87 @@ public class Main {
         String[] sortedLog = writableLog.split("\\r?\\n");
         Arrays.sort(sortedLog, Comparator.comparing(s -> s.substring(2)));
 
+        System.out.println("Result\n");
         System.out.println(StringUtils.join(Arrays.asList(sortedLog), "\n"));
 
         String newFilePath = filePath.substring(0, filePath.lastIndexOf(".")) + "_filtered.csv";
         Utils.writeDataLineByLine(newFilePath, StringUtils.join(Arrays.asList(sortedLog), "\n"));
     }
 
-    private static String applySimplifier(String logs) {
+    private static String applySimplifier(String log) {
         try {
-            Validator.validateForIdName(logs);
+            Validator.validateForIdName(log);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        String sortedLogs = PreProcessing.sortLog(logs);
+        String sortedLog = PreProcessing.sortLog(log);
         System.out.println("SORTED LOG\n");
-        System.out.println(sortedLogs);
+        System.out.println(sortedLog);
 
-        sortedLogs = PreProcessing.deleteChromeClipboardCopy(sortedLogs);
-        sortedLogs = PreProcessing.mergeNavigationCellCopy(sortedLogs);
-        sortedLogs = PreProcessing.deleteLink(sortedLogs);
-        sortedLogs = PreProcessing.identifyPasteAction(sortedLogs);
+        sortedLog = PreProcessing.deleteChromeClipboardCopy(sortedLog);
+        sortedLog = PreProcessing.mergeNavigationCellCopy(sortedLog);
+        sortedLog = PreProcessing.identifyPasteAction(sortedLog);
         System.out.println("AFTER PRE PROCESSING\n");
-        System.out.println(sortedLogs);
+        System.out.println(sortedLog);
 
-        while (ReadSimplifier.containsRedundantCopy(sortedLogs) ||
-                ReadSimplifier.containsSingleCopy(sortedLogs) ||
-                NavigationSimplifier.containsRedundantClickTextField(sortedLogs) ||
-                WriteSimplifier.isRedundantChromePaste(sortedLogs) ||
-                WriteSimplifier.isRedundantEditCell(sortedLogs) ||
-                WriteSimplifier.isRedundantChromeEditField(sortedLogs) ||
-                WriteSimplifier.isRedundantPasteIntoCell(sortedLogs) ||
-                WriteSimplifier.isRedundantPasteIntoRange(sortedLogs)) {
+        while (ReadSimplifier.containsRedundantCopy(sortedLog) ||
+                ReadSimplifier.containsSingleCopy(sortedLog) ||
+                NavigationSimplifier.containsRedundantClickTextField(sortedLog) ||
+                WriteSimplifier.isRedundantChromePaste(sortedLog) ||
+                WriteSimplifier.isRedundantEditCell(sortedLog) ||
+                WriteSimplifier.isRedundantChromeEditField(sortedLog) ||
+                WriteSimplifier.isRedundantPasteIntoCell(sortedLog) ||
+                WriteSimplifier.isRedundantPasteIntoRange(sortedLog)) {
 
-            if (ReadSimplifier.containsRedundantCopy(sortedLogs)) {
-                sortedLogs = ReadSimplifier.removeRedundantCopy(sortedLogs);
-                System.out.println("\n");
-                System.out.println(sortedLogs);
+            if (ReadSimplifier.containsRedundantCopy(sortedLog)) {
+                sortedLog = ReadSimplifier.removeRedundantCopy(sortedLog);
+                System.out.println("After ReadSimplifier.containsRedundantCopy\n");
+                System.out.println(sortedLog);
             }
 
-            if (ReadSimplifier.containsSingleCopy(sortedLogs)) {
-                sortedLogs = ReadSimplifier.removeSingleCopy(sortedLogs);
-                System.out.println("\n");
-                System.out.println(sortedLogs);
+            if (ReadSimplifier.containsSingleCopy(sortedLog)) {
+                sortedLog = ReadSimplifier.removeSingleCopy(sortedLog);
+                System.out.println("After ReadSimplifier.removeSingleCopy\n");
+                System.out.println(sortedLog);
             }
 
-            if (NavigationSimplifier.containsRedundantClickTextField(sortedLogs)) {
-                sortedLogs = NavigationSimplifier.removeRedundantClickTextField(sortedLogs);
-                System.out.println("\n");
-                System.out.println(sortedLogs);
+            if (NavigationSimplifier.containsRedundantClickTextField(sortedLog)) {
+                sortedLog = NavigationSimplifier.removeRedundantClickTextField(sortedLog);
+                System.out.println("After NavigationSimplifier.removeRedundantClickTextField\n");
+                System.out.println(sortedLog);
             }
 
-            if (WriteSimplifier.isRedundantChromePaste(sortedLogs)) {
-                sortedLogs = WriteSimplifier.deleteRedundantChromePaste(sortedLogs);
-                System.out.println("\n");
-                System.out.println(sortedLogs);
+            if (WriteSimplifier.isRedundantChromePaste(sortedLog)) {
+                sortedLog = WriteSimplifier.deleteRedundantChromePaste(sortedLog);
+                System.out.println("After WriteSimplifier.deleteRedundantChromePaste\n");
+                System.out.println(sortedLog);
             }
 
-            if (WriteSimplifier.isRedundantEditCell(sortedLogs)) {
-                sortedLogs = WriteSimplifier.deleteRedundantEditCell(sortedLogs);
-                System.out.println("\n");
-                System.out.println(sortedLogs);
+            if (WriteSimplifier.isRedundantEditCell(sortedLog)) {
+                sortedLog = WriteSimplifier.deleteRedundantEditCell(sortedLog);
+                System.out.println("After WriteSimplifier.deleteRedundantEditCell\n");
+                System.out.println(sortedLog);
             }
 
-            if (WriteSimplifier.isRedundantChromeEditField(sortedLogs)) {
-                sortedLogs = WriteSimplifier.deleteRedundantChromeEditField(sortedLogs);
-                System.out.println("\n");
-                System.out.println(sortedLogs);
+            if (WriteSimplifier.isRedundantChromeEditField(sortedLog)) {
+                sortedLog = WriteSimplifier.deleteRedundantChromeEditField(sortedLog);
+                System.out.println("After WriteSimplifier.deleteRedundantChromeEditField\n");
+                System.out.println(sortedLog);
             }
 
-            if (WriteSimplifier.isRedundantPasteIntoCell(sortedLogs)) {
-                sortedLogs = WriteSimplifier.deleteRedundantPasteIntoCell(sortedLogs);
-                System.out.println("\n");
-                System.out.println(sortedLogs);
+            if (WriteSimplifier.isRedundantPasteIntoCell(sortedLog)) {
+                sortedLog = WriteSimplifier.deleteRedundantPasteIntoCell(sortedLog);
+                System.out.println("After WriteSimplifier.deleteRedundantPasteIntoCell\n");
+                System.out.println(sortedLog);
             }
 
-            if (WriteSimplifier.isRedundantPasteIntoRange(sortedLogs)) {
-                sortedLogs = WriteSimplifier.deleteRedundantPasteIntoRange(sortedLogs);
-                System.out.println("\n");
-                System.out.println(sortedLogs);
+            if (WriteSimplifier.isRedundantPasteIntoRange(sortedLog)) {
+                sortedLog = WriteSimplifier.deleteRedundantPasteIntoRange(sortedLog);
+                System.out.println("After WriteSimplifier.deleteRedundantPasteIntoRange\n");
+                System.out.println(sortedLog);
             }
         }
 
-        return sortedLogs;
+        return sortedLog;
     }
 }
