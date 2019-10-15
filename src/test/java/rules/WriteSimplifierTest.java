@@ -80,7 +80,7 @@ public class WriteSimplifierTest {
                 "2019-04-09T20:48:18.408Z,st,Excel,copyCell,,hello,test.xlsx,Sheet1,F1,,,,,[[6]],,,,\n" +
                 "2019-04-09T20:48:19.192Z,st,Chrome,paste,,hello,,,,,INPUT,text,Name_Last,hello,,,,\n";
 
-        assertThat(WriteSimplifier.isRedundantChromePaste(logs), is(equalTo(true)));
+        assertThat(WriteSimplifier.containsRedundantChromePaste(logs), is(equalTo(true)));
 
         assertEquals("2019-04-09T20:48:11.819Z,st,Chrome,copy,,hello,,,,,INPUT,text,Name_First,hello,,,,\n" +
                         "2019-04-09T20:48:18.408Z,st,Excel,copyCell,,hello,test.xlsx,Sheet1,F1,,,,,[[6]],,,,\n" +
@@ -95,7 +95,7 @@ public class WriteSimplifierTest {
                 "2019-04-09T20:48:11.819Z,st,Chrome,copy,,hello,,,,,INPUT,text,Name_Last,hello,,,,\n" +
                 "2019-04-09T20:48:19.192Z,st,Chrome,paste,,hello,,,,,INPUT,text,Name_Last,hello,,,,\n";
 
-        assertThat(WriteSimplifier.isRedundantChromePaste(logs), is(equalTo(false)));
+        assertThat(WriteSimplifier.containsRedundantChromePaste(logs), is(equalTo(false)));
 
         assertEquals(WriteSimplifier.deleteRedundantChromePaste(logs), logs);
     }

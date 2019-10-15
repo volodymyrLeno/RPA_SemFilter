@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
  * check if the log contains redundant write actions, and if so,
  * remove them and return a new log.
  * <br><br>
- * List of "Write" actions:
+ * <h2>List of "Write" actions:</h2>
  * <ul>
  *     <li>
  *         Excel, editCell
@@ -24,24 +24,49 @@ import java.util.regex.Pattern;
  *     </li>
  * </ul>
  * <br>
- * Redundant cases:
+ * <h2>Redundant cases:</h2>
  * <ul>
  *     <li>
- *          If there are two "editCell" actions with the same target id
- *          (cell address) and there is any number of actions between them,
- *          except "getCell" action and "copyCell" action that have the same
- *          cell address, the first "editCell" action is redundant.
- *          <br>
- *          Example:
- *          <pre>
- *              <mark style="background-color: #FF7B62">"Excel", "editCell", "C1", "1"</mark>
- *              "Excel", "getCell", "D11", "2"
- *              <mark>"Excel", "editCell", "C1", "2"</mark>
- *          </pre>
- *          <br>
- *          Second action "getCell" has cell address equals to "D11",
- *          when both "editCell" actions have cell address equals to "C1",
- *          it means that the first "editCell" action is redundant.
+ *         <h3>
+ *             Redundant "editCell" action.
+ *         </h3>
+ *         If there are two "editCell" actions with the same target id
+ *         (cell address) and there is any number of actions between them,
+ *         except "getCell" action and "copyCell" action that have the same
+ *         cell address, the first "editCell" action is redundant.
+ *         <br>
+ *         Example:
+ *         <pre>
+ *             <mark style="background-color: #FF7B62">"Excel", "editCell", "C1", "1"</mark>
+ *             "Excel", "getCell", "D11", "2"
+ *             <mark>"Excel", "editCell", "C1", "2"</mark>
+ *         </pre>
+ *         <br>
+ *         Second action "getCell" has cell address equals to "D11",
+ *         when both "editCell" actions have cell address equals to "C1",
+ *         it means that the first "editCell" action is redundant.
+ *     </li>
+ *     <li>
+ *         <h3>
+ *             Redundant "pasteIntoCell" action.
+ *         </h3>
+ *         If there are two "pasteIntoCell" actions with the same workbook name,
+ *         sheet name and target id (cell address) and any number of actions
+ *         between them except "copyCell" action with the same workbook name,
+ *         sheet name and cell address, the first "pasteIntoCell" action is
+ *         redundant.
+ *         <br>
+ *         Example:
+ *         <pre>
+ *             <mark style="background-color: #FF7B62">"Excel", "pasteIntoCell", "Book1", "Sheet1", "A1", "1"</mark>
+ *             "Excel", "getCell", "Book1", "Sheet1", "D11", "2"
+ *             <mark>"Excel", "pasteIntoCell", "Book1", "Sheet1", "A1", "1"</mark>
+ *         </pre>
+ *         <br>
+ *         Second "pasteIntoCell" action has the same workbook name, sheet name and cell address
+ *         and there is no "copyCell" action with the same workbook name, sheet name and cell
+ *         address between these two "pasteIntoCell" actions, so the first "pasteIntoCell" action is
+ *         redundant.
  *     </li>
  * </ul>
  */
@@ -50,36 +75,48 @@ public class WriteSimplifier {
     /**
      * This is regular expression that corresponds to the case when
      * there is any number of actions except "geCell" action and
-     * "copyCell" action between "editCell" action and
-     * another "editCell" action with the same target id (cell address)
+     * "copyCell" action between "editCell" action and another
+     * "editCell" action with the same target id (cell address).
      */
     private static String redundantEditCellRegex = ".*\"editCell\",(((?!,).)*,){4}(((?!,).)*),.*\\n" +
                                                    "(((((?!,).)*,){3}((?!(\"getCell\"|\"copyCell\"),(((?!,).)*,){4}\\3).)*\\n)*" +
                                                    ".*\"editCell\",(((?!,).)*,){4}\\3,.*\\n*)";
 
-    private static String chromeDoublePasteRegex = ".*paste,(((?!,).)*,)(((?!,).)*,)(((?!,).)*,){6}(((?!,).)*,)(((?!,).)*,).*\\n" +
-                                                   "(((((?!,).)*,){3}((?!copy,(((?!,).)*,){8}\\7).)*\\n)*" +
-                                                   ".*paste,(((?!,).)*,){8}\\7.*\\n)";
+    /**
+     * This is regular expression that corresponds to the case when
+     * there are two "pasteIntoCell" actions with the same workbook name,
+     * sheet name and target id (cell address) and any number of actions
+     * between them except "copyCell" action with the same workbook name,
+     * sheet name and cell address.
+     */
+    private static String redundantPasteIntoCellRegex = ".*\"pasteIntoCell\",(((?!,).)*,){2}((((?!,).)*,){3}).*\\n" +
+                                                        "(((((?!,).)*,){3}((?!\"copyCell\",(((?!,).)*,){2}\\3).)*\\n)*" +
+                                                        ".*\"pasteIntoCell\",(((?!,).)*,){2}\\3.*\\n*)";
+
+    //Fixed? Investigate.
+    private static String chromeDoublePasteRegex = ".*\"paste\",(((?!,).)*,)(((?!,).)*,)(((?!,).)*,){6}(((?!,).)*,)(((?!,).)*,).*\\n" +
+                                                   "(((((?!,).)*,){3}((?!\"copy\",(((?!,).)*,){8}\\7).)*\\n)*" +
+                                                   ".*\"paste\",(((?!,).)*,)\\3(((?!,).)*,){6}\\7\\9.*\\n)";
 
     private static String chromePasteRegex = ".*paste,(((?!,).)*,)(((?!,).)*),(((?!,).)*,){6}(((?!,).)*,)(((?!,).)*),.*\\n" +
                                              "(((((?!,).)*,){3}((?!copy,(((?!,).)*,){8}\\7).)*\\n)*" +
                                              ".*editField,(((?!,).)*,){9}((?!(\\3\\9)).)*,(((?!,).)*,){3}\\n)";
 
-    private static String chromeCopyBetweenEditRegex = "((((?!paste).)*\\n)*)" +
-                                                       "((.*paste,(((?!,).)*,){8}(((?!,).)*),.*\\n)*)" +
+    private static String chromeCopyBetweenEditRegex = "((((?!\"paste\").)*\\n)*)" +
+                                                       "((.*\"paste\",(((?!,).)*,){8}(((?!,).)*),.*\\n)*)" +
                                                        "(((.*\\n)*)" +
-                                                       "(.*editField,(((?!,).)*,){8}(((?!,).)*),(((?!,).)*),.*\\n)" +
+                                                       "(.*\"editField\",(((?!,).)*,){8}(((?!,).)*),(((?!,).)*),.*\\n)" +
                                                        "(" +
-                                                       "((((?!,).)*,){3}((?!copy,(((?!,).)*,){8}\\16).)*\\n)*" +
-                                                       ".*editField,(((?!,).)*,){8}\\16(((?!(,|\\18)).)*),.*\\n))";
+                                                       "((((?!,).)*,){3}((?!\"copy\",(((?!,).)*,){8}\\16).)*\\n)*" +
+                                                       ".*\"editField\",(((?!,).)*,){8}\\16(((?!(,|\\18)).)*),.*\\n))";
 
-    private static String chromePasteBetweenEditRegex = "(.*editField,(((?!,).)*,){8}(((?!,).)*,)(((?!,).)*),.*\\n)" +
+    private static String chromePasteBetweenEditRegex = "(.*\"editField\",(((?!,).)*,){8}(((?!,).)*,)(((?!,).)*),.*\\n)" +
                                                         "(" +
-                                                        "((((?!,).)*,){3}paste,(((?!,).)*,)(((?!,).)*),(((?!,).)*,){6}\\4.*\\n)*" +
-                                                        ".*editField,(((?!,).)*,){8}\\4(((\\6\\14|,).)*),.*\\n)";
+                                                        "((((?!,).)*,){3}\"paste\",(((?!,).)*,)(((?!,).)*),(((?!,).)*,){6}\\4.*\\n)*" +
+                                                        ".*\"editField\",(((?!,).)*,){8}\\4(((\\6\\14|,).)*),.*\\n)";
 
-    private static String chromeDoubleEditRegex = "(.*editField,(((?!,).)*,){8}(((?!,).)*,)(((?!,).)*),.*\\n)" +
-                                                  "(.*editField,(((?!,).)*,){8}\\4.*\\n)";
+    private static String chromeDoubleEditRegex = "(.*\"editField\",(((?!,).)*,){8}(((?!,).)*,)(((?!,).)*),.*\\n)" +
+                                                  "(.*\"editField\",(((?!,).)*,){8}\\4.*\\n)";
 
     /**
      * Checks if the log contains a pattern that matches {@link WriteSimplifier#redundantEditCellRegex},
@@ -97,6 +134,35 @@ public class WriteSimplifier {
         Matcher matcher = pattern.matcher(log);
 
         return matcher.find();
+    }
+
+    /**
+     * Checks if the log contains a pattern that matches {@link WriteSimplifier#redundantPasteIntoCellRegex},
+     * i.e the log contains two "pasteIntoCell" actions with the same
+     * workbook name, sheet name and target id (cell address) and
+     * there is any number of action between them except "copyCell"
+     * action with the same workbook name, sheet name and cell address.
+     *
+     * @param   log the log that contains input actions.
+     * @return  <code>true</code> if the log contains pattern that
+     *          matches {@link WriteSimplifier#redundantPasteIntoCellRegex};
+     *          <code>false</code> otherwise.
+     */
+    public static boolean containsRedundantPasteIntoCell(String log) {
+        Pattern p = Pattern.compile(redundantPasteIntoCellRegex);
+        Matcher matcher = p.matcher(log);
+
+        return matcher.find();
+    }
+
+    public static boolean containsRedundantChromePaste(String logs) {
+        Pattern firstPattern = Pattern.compile(chromePasteRegex);
+        Matcher firstMatcher = firstPattern.matcher(logs);
+
+        Pattern secondPattern = Pattern.compile(chromeDoublePasteRegex);
+        Matcher secondMatcher = secondPattern.matcher(logs);
+
+        return secondMatcher.find();
     }
 
     /**
@@ -126,14 +192,31 @@ public class WriteSimplifier {
         return log;
     }
 
-    public static boolean isRedundantChromePaste(String logs) {
-        Pattern firstPattern = Pattern.compile(chromePasteRegex);
-        Matcher firstMatcher = firstPattern.matcher(logs);
+    /**
+     * Removes all redundant "pasteIntoCell" actions from the log.
+     * <p>
+     * If the log contains pattern that matches {@link WriteSimplifier#redundantPasteIntoCellRegex},
+     * the method will remove first "pasteIntoCell" action in the pattern. The method will be called
+     * again if the log contains redundant "pasteIntoCell" action after replacing the pattern that
+     * matches {@link WriteSimplifier#redundantPasteIntoCellRegex} until there are none of them.
+     * </p>
+     *
+     * @param log   the log that contains input actions.
+     * @return      the log without redundant "pasteIntoCell" actions.
+     */
+    public static String removeRedundantPasteIntoCell(String log) {
+        /*
+            $6 is a parameter of WriteSimplifier#redundantPasteIntoCellRegex that
+            is responsible for every action after the first "pasteIntoCell" action
+            and the second "pasteIntoCell" action in the pattern.
+         */
+        log = log.replaceAll(redundantPasteIntoCellRegex, "$6");
 
-        Pattern secondPattern = Pattern.compile(chromeDoublePasteRegex);
-        Matcher secondMatcher = secondPattern.matcher(logs);
+        if (containsRedundantPasteIntoCell(log)) {
+            return removeRedundantPasteIntoCell(log);
+        }
 
-        return secondMatcher.find();
+        return log;
     }
 
     public static String deleteRedundantChromePaste(String logs) {
@@ -191,33 +274,6 @@ public class WriteSimplifier {
         return logs;
     }
 
-    public static boolean isRedundantPasteIntoCell(String log) {
-        String regex = ".*pasteIntoCell,(((?!,).)*,)((((?!,).)*,){3}(((?!,).)*,)).*\\n" +
-                "(((((?!,).)*,){3}((?!copyCell,(((?!,).)*,){4}\\6).)*\\n)*" +
-                ".*pasteIntoCell,(((?!,).)*,)\\3.*\\n)";
-
-        Pattern p = Pattern.compile(regex);
-        Matcher matcher = p.matcher(log);
-
-        return matcher.find();
-    }
-
-    public static String deleteRedundantPasteIntoCell(String log) {
-        String regex = ".*pasteIntoCell,(((?!,).)*,)((((?!,).)*,){3}(((?!,).)*,)).*\\n" +
-                "(((((?!,).)*,){3}((?!copyCell,(((?!,).)*,){4}\\6).)*\\n)*" +
-                ".*pasteIntoCell,(((?!,).)*,)\\3.*\\n)";
-
-        Pattern p = Pattern.compile(regex);
-        Matcher matcher = p.matcher(log);
-
-        if (matcher.find()) {
-            log = log.replaceAll(regex, "$8");
-            return deleteRedundantPasteIntoCell(log);
-        }
-
-        return log;
-    }
-
     public static boolean isRedundantPasteIntoRange(String log) {
         String regex = ".*pasteIntoRange,(((?!,).)*,)((((?!,).)*,){3}(((?!,).)*,)).*\\n" +
                 "(((((?!,).)*,){3}((?!copyRange,(((?!,).)*,){4}\\6).)*\\n)*" +
@@ -239,7 +295,7 @@ public class WriteSimplifier {
 
         if (matcher.find()) {
             log = log.replaceAll(regex, "$8");
-            return deleteRedundantPasteIntoCell(log);
+            return removeRedundantPasteIntoCell(log);
         }
 
         return log;

@@ -55,7 +55,7 @@ public class PreProcessing {
      *          with "pasteIntoCell" or "pasteIntoRange" actions.
      */
     public static String identifyPasteAction(String log) {
-        String cellRegex = "(.*\"copyCell\",(((?!,).)*,)\"(((?!,).)*)\",.*\\n)" +
+        String cellRegex = "(.*\"copyCell\",(((?!,).)*,)(((?!,).)*),.*\\n)" +
                            "((.*\\n)*)" +
                            "((.*)\"editCell\",(((?!,).)*,)(((?!,).)*,)((((?!,).)*,){7}\\4.*)\\n)";
 
@@ -69,7 +69,7 @@ public class PreProcessing {
 
 
         if (Pattern.compile(cellRegex).matcher(log).find()) {
-            log = log.replaceAll(cellRegex, "$1$6$9\"pasteIntoCell\",$10\"$4\",$14\n");
+            log = log.replaceAll(cellRegex, "$1$6$9\"pasteIntoCell\",$10$4,$14\n");
             return identifyPasteAction(log);
         }
 

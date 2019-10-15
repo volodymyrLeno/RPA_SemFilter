@@ -58,10 +58,10 @@ public class Main {
         while (ReadSimplifier.containsRedundantCopy(sortedLog) ||
                 ReadSimplifier.containsSingleCopy(sortedLog) ||
                 NavigationSimplifier.containsRedundantClickTextField(sortedLog) ||
-                WriteSimplifier.isRedundantChromePaste(sortedLog) ||
+                WriteSimplifier.containsRedundantChromePaste(sortedLog) ||
                 WriteSimplifier.containsRedundantEditCell(sortedLog) ||
                 WriteSimplifier.isRedundantChromeEditField(sortedLog) ||
-                WriteSimplifier.isRedundantPasteIntoCell(sortedLog) ||
+                WriteSimplifier.containsRedundantPasteIntoCell(sortedLog) ||
                 WriteSimplifier.isRedundantPasteIntoRange(sortedLog)) {
 
             if (ReadSimplifier.containsRedundantCopy(sortedLog)) {
@@ -82,7 +82,7 @@ public class Main {
                 System.out.println(sortedLog);
             }
 
-            if (WriteSimplifier.isRedundantChromePaste(sortedLog)) {
+            if (WriteSimplifier.containsRedundantChromePaste(sortedLog)) {
                 sortedLog = WriteSimplifier.deleteRedundantChromePaste(sortedLog);
                 System.out.println("After WriteSimplifier.deleteRedundantChromePaste\n");
                 System.out.println(sortedLog);
@@ -100,8 +100,8 @@ public class Main {
                 System.out.println(sortedLog);
             }
 
-            if (WriteSimplifier.isRedundantPasteIntoCell(sortedLog)) {
-                sortedLog = WriteSimplifier.deleteRedundantPasteIntoCell(sortedLog);
+            if (WriteSimplifier.containsRedundantPasteIntoCell(sortedLog)) {
+                sortedLog = WriteSimplifier.removeRedundantPasteIntoCell(sortedLog);
                 System.out.println("After WriteSimplifier.deleteRedundantPasteIntoCell\n");
                 System.out.println(sortedLog);
             }
