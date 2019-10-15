@@ -11,36 +11,46 @@ import java.util.regex.Pattern;
  * List of "Read" actions:
  * <ul>
  *     <li>
- *         Copy
- *         <ul>
- *             <li>
- *                 If there is any number of actions between two "copy" actions
- *                 except "paste" action, the first "copy" action is redundant.
- *                 <br>
- *                 Example:
- *                 <pre>
- *                     <mark>"Chrome", "copy", "text"</mark>
- *                     "Chrome", "editField", "text"
- *                     "Chrome", "editField", "text"
- *                     <mark>"Chrome", "copy", "text"</mark>
- *                 </pre>
- *                 First "copy" action is redundant.
- *                 <br><br>
- *             </li>
- *             <li>
- *                 If the log contains a single "copy" action and there is no "paste"
- *                 action after it, the "copy" action is redundant.
- *                 <br>
- *                 Example:
- *                 <pre>
- *                     <mark>"Chrome", "copy", "text"</mark>
- *                     "Chrome", "editField", "text"
- *                     "Chrome", "editField", "text"
- *                 </pre>
- *                 "Copy" action is redundant.
- *                 <br><br>
- *             </li>
- *         </ul>
+ *         Chrome, copy
+ *     </li>
+ *     <li>
+ *         Excel, copyCell
+ *     </li>
+ *     <li>
+ *         Excel, copyRange
+ *     </li>
+ * </ul>
+ * <br>
+ * Redundant cases:
+ * <ul>
+ *     <li>
+ *         If there is any number of actions between two "copy" actions
+ *         except "paste" action, the first "copy" action is redundant.
+ *         The case is described by {@link ReadSimplifier#redundantFirstCopyRegex}.
+ *         <br>
+ *         Example:
+ *         <pre>
+ *             <mark style="background-color: #FF7B62">"Chrome", "copy", "text"</mark>
+ *             "Chrome", "editField", "text"
+ *             "Chrome", "editField", "text"
+ *             <mark>"Chrome", "copy", "text"</mark>
+ *         </pre>
+ *         First "copy" action is redundant.
+ *         <br><br>
+ *     </li>
+ *     <li>
+ *         If the log contains a single "copy" action and there is no "paste"
+ *         action after it, the "copy" action is redundant.
+ *         The case is described by {@link ReadSimplifier#singleCopyRegex}.
+ *         <br>
+ *         Example:
+ *         <pre>
+ *             <mark style="background-color: #FF7B62">"Chrome", "copy", "text"</mark>
+ *             "Chrome", "editField", "text"
+ *             "Chrome", "editField", "text"
+ *         </pre>
+ *         "copy" action is redundant.
+ *         <br><br>
  *     </li>
  * </ul>
  */
@@ -113,17 +123,20 @@ public class ReadSimplifier {
      * from the log.
      * <p>
      * If the log contains pattern that matches {@link ReadSimplifier#redundantFirstCopyRegex},
-     * the method will remove first "copy" action in the pattern. $4 is a parameter of
-     * {@link ReadSimplifier#redundantFirstCopyRegex} that is responsible for every action
-     * after the first "copy" action and the second "copy" action in the pattern.
-     * The method will be called again if the log contains redundant "copy" action after replacing the
-     * pattern that matches {@link ReadSimplifier#redundantFirstCopyRegex} until there are none of them.
+     * the method will remove first "copy" action in the pattern. The method will be called again
+     * if the log contains redundant "copy" action after replacing the pattern that matches
+     * {@link ReadSimplifier#redundantFirstCopyRegex} until there are none of them.
      * </p>
      *
      * @param log   the log that contains input actions.
      * @return      the log without redundant "copy" actions.
      */
     public static String removeRedundantCopy(String log) {
+        /*
+            $4 is a parameter of ReadSimplifier#redundantFirstCopyRegex that
+            is responsible for every action after the first "copy" action and
+            the second "copy" action in the pattern.
+         */
         log = log.replaceAll(redundantFirstCopyRegex, "$4");
 
         if (containsRedundantCopy(log)) {
@@ -138,17 +151,19 @@ public class ReadSimplifier {
      * from the log.
      * <p>
      * If the log contains pattern that matches {@link ReadSimplifier#singleCopyRegex},
-     * the method will remove single "copy" action from the log. $1 is a parameter
-     * of {@link ReadSimplifier#singleCopyRegex} that is responsible for
-     * every action before single "copy" action. $13 is a parameter
-     * of {@link ReadSimplifier#singleCopyRegex} that is responsible for
-     * every action after a single "copy" action.
+     * the method will remove single "copy" action from the log.
      * </p>
      *
      * @param   log the log that contains input actions.
      * @return  the log without single "copy" action.
      */
     public static String removeSingleCopy(String log) {
+        /*
+            $1 is a parameter of ReadSimplifier#singleCopyRegex
+            that is responsible for every action before single "copy"
+            action. $13 is a parameter of ReadSimplifier#singleCopyRegex
+            that is responsible for every action after a single "copy" action.
+         */
         log = log.replaceAll(singleCopyRegex, "$1$12");
 
         if (containsSingleCopy(log)) {

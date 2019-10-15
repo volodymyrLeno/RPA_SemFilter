@@ -19,14 +19,14 @@ public class WriteSimplifierTest {
                 "2019-04-09T17:58:59.057Z,st,Chrome,editField,,,,,,,INPUT,text,Name_Last,world,,,,\n" +
                 "2019-04-09T15:15:37.970Z,st,Excel,editCell,,,test.xlsx,Sheet1,B1,,,,,10,,,,\n";
 
-        assertThat(WriteSimplifier.isRedundantEditCell(logs), is(equalTo(true)));
+        assertThat(WriteSimplifier.containsRedundantEditCell(logs), is(equalTo(true)));
 
         assertEquals("2019-04-09T15:15:45.862Z,st,Excel,getRange,,,test.xlsx,Sheet1,A1:F1,,,,,[[1,2,3,4,5,6]],,,,\n" +
                         "2019-04-09T17:58:57.292Z,st,Chrome,editField,,,,,,,INPUT,text,Name_First,test,,,,\n" +
                         "2019-04-09T17:58:57.409Z,st,Chrome,clickTextField,,,,,,,INPUT,text,Name_Last,,,,,\n" +
                         "2019-04-09T17:58:59.057Z,st,Chrome,editField,,,,,,,INPUT,text,Name_Last,world,,,,\n" +
                         "2019-04-09T15:15:37.970Z,st,Excel,editCell,,,test.xlsx,Sheet1,B1,,,,,10,,,,\n",
-                WriteSimplifier.deleteRedundantEditCell(logs));
+                WriteSimplifier.removeRedundantEditCell(logs));
     }
 
     @Test
@@ -39,7 +39,7 @@ public class WriteSimplifierTest {
                 "2019-04-09T15:15:40.051Z,st,Excel,getCell,,,test.xlsx,Sheet1,B1,,,,,2,,,,\n" +
                 "2019-04-09T15:15:37.970Z,st,Excel,editCell,,,test.xlsx,Sheet1,B1,,,,,10,,,,\n";
 
-        assertThat(WriteSimplifier.isRedundantEditCell(logs), is(equalTo(false)));
+        assertThat(WriteSimplifier.containsRedundantEditCell(logs), is(equalTo(false)));
 
         assertEquals("2019-04-09T15:15:45.862Z,st,Excel,getRange,,,test.xlsx,Sheet1,A1:F1,,,,,[[1,2,3,4,5,6]],,,,\n" +
                         "2019-04-09T15:15:37.970Z,st,Excel,editCell,,,test.xlsx,Sheet1,B1,,,,,2,,,,\n" +
@@ -48,7 +48,7 @@ public class WriteSimplifierTest {
                         "2019-04-09T17:58:59.057Z,st,Chrome,editField,,,,,,,INPUT,text,Name_Last,world,,,,\n" +
                         "2019-04-09T15:15:40.051Z,st,Excel,getCell,,,test.xlsx,Sheet1,B1,,,,,2,,,,\n" +
                         "2019-04-09T15:15:37.970Z,st,Excel,editCell,,,test.xlsx,Sheet1,B1,,,,,10,,,,\n",
-                WriteSimplifier.deleteRedundantEditCell(logs));
+                WriteSimplifier.removeRedundantEditCell(logs));
     }
 
     @Test
@@ -61,7 +61,7 @@ public class WriteSimplifierTest {
                 "2019-04-02T17:56:47.899Z,st,Excel,copyCell,,3,test.xlsx,Sheet1,B1,,,,,2\n" +
                 "2019-04-09T15:15:37.970Z,st,Excel,editCell,,,test.xlsx,Sheet1,B1,,,,,10,,,,\n";
 
-        assertThat(WriteSimplifier.isRedundantEditCell(logs), is(equalTo(false)));
+        assertThat(WriteSimplifier.containsRedundantEditCell(logs), is(equalTo(false)));
 
         assertEquals("2019-04-09T15:15:45.862Z,st,Excel,getRange,,,test.xlsx,Sheet1,A1:F1,,,,,[[1,2,3,4,5,6]],,,,\n" +
                         "2019-04-09T15:15:37.970Z,st,Excel,editCell,,,test.xlsx,Sheet1,B1,,,,,2,,,,\n" +
@@ -70,7 +70,7 @@ public class WriteSimplifierTest {
                         "2019-04-09T17:58:59.057Z,st,Chrome,editField,,,,,,,INPUT,text,Name_Last,world,,,,\n" +
                         "2019-04-02T17:56:47.899Z,st,Excel,copyCell,,3,test.xlsx,Sheet1,B1,,,,,2\n" +
                         "2019-04-09T15:15:37.970Z,st,Excel,editCell,,,test.xlsx,Sheet1,B1,,,,,10,,,,\n",
-                WriteSimplifier.deleteRedundantEditCell(logs));
+                WriteSimplifier.removeRedundantEditCell(logs));
     }
 
     @Test
