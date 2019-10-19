@@ -80,12 +80,12 @@ public class WriteSimplifierTest {
                 "2019-04-09T20:48:18.408Z,st,Excel,copyCell,,hello,test.xlsx,Sheet1,F1,,,,,[[6]],,,,\n" +
                 "2019-04-09T20:48:19.192Z,st,Chrome,paste,,hello,,,,,INPUT,text,Name_Last,hello,,,,\n";
 
-        assertThat(WriteSimplifier.containsRedundantChromePaste(logs), is(equalTo(true)));
+        assertThat(WriteSimplifier.containsRedundantDoublePaste(logs), is(equalTo(true)));
 
         assertEquals("2019-04-09T20:48:11.819Z,st,Chrome,copy,,hello,,,,,INPUT,text,Name_First,hello,,,,\n" +
                         "2019-04-09T20:48:18.408Z,st,Excel,copyCell,,hello,test.xlsx,Sheet1,F1,,,,,[[6]],,,,\n" +
                         "2019-04-09T20:48:19.192Z,st,Chrome,paste,,hello,,,,,INPUT,text,Name_Last,hello,,,,\n",
-                WriteSimplifier.deleteRedundantChromePaste(logs));
+                WriteSimplifier.removeRedundantDoublePaste(logs));
     }
 
     @Test
@@ -95,9 +95,9 @@ public class WriteSimplifierTest {
                 "2019-04-09T20:48:11.819Z,st,Chrome,copy,,hello,,,,,INPUT,text,Name_Last,hello,,,,\n" +
                 "2019-04-09T20:48:19.192Z,st,Chrome,paste,,hello,,,,,INPUT,text,Name_Last,hello,,,,\n";
 
-        assertThat(WriteSimplifier.containsRedundantChromePaste(logs), is(equalTo(false)));
+        assertThat(WriteSimplifier.containsRedundantDoublePaste(logs), is(equalTo(false)));
 
-        assertEquals(WriteSimplifier.deleteRedundantChromePaste(logs), logs);
+        assertEquals(WriteSimplifier.removeRedundantDoublePaste(logs), logs);
     }
 
     @Test
@@ -106,10 +106,10 @@ public class WriteSimplifierTest {
                 "2019-04-09T20:48:19.963Z,st,Chrome,editField,,,,,,,INPUT,text,Name_Last,hello world,,,,\n" +
                 "2019-04-09T20:48:19.964Z,st,Chrome,editField,,,,,,,INPUT,text,Name_Last,hello,,,,\n";
 
-        assertThat(WriteSimplifier.isRedundantChromeEditField(logs), is(equalTo(true)));
+        assertThat(WriteSimplifier.containsRedundantEditField(logs), is(equalTo(true)));
 
         assertEquals("2019-04-09T20:48:19.964Z,st,Chrome,editField,,,,,,,INPUT,text,Name_Last,hello,,,,\n",
-                WriteSimplifier.deleteRedundantChromeEditField(logs));
+                WriteSimplifier.removeRedundantEditField(logs));
     }
 
     @Test
@@ -119,9 +119,9 @@ public class WriteSimplifierTest {
                 "2019-04-09T20:48:11.819Z,st,Chrome,copy,,hello world,,,,,INPUT,text,Name_Last,hello world,,,,\n" +
                 "2019-04-09T20:48:19.964Z,st,Chrome,editField,,,,,,,INPUT,text,Name_Last,hello,,,,\n";
 
-        assertThat(WriteSimplifier.isRedundantChromeEditField(logs), is(equalTo(false)));
+        assertThat(WriteSimplifier.containsRedundantEditField(logs), is(equalTo(false)));
 
-        assertEquals(WriteSimplifier.deleteRedundantChromeEditField(logs), logs);
+        assertEquals(WriteSimplifier.removeRedundantEditField(logs), logs);
     }
 
     @Test
@@ -132,12 +132,12 @@ public class WriteSimplifierTest {
                 "2019-04-29T16:51:44.332Z,st,Chrome,paste,,hey,,,,,INPUT,text,Name_First,heyhey,,,,\n" +
                 "2019-04-29T16:51:45.657Z,st,Chrome,editField,,,,,,,INPUT,text,Name_First,heyheyhey,,,,\n";
 
-        assertThat(WriteSimplifier.isRedundantChromeEditField(logs), is(equalTo(true)));
+        assertThat(WriteSimplifier.containsRedundantEditField(logs), is(equalTo(true)));
 
 
         assertEquals("2019-04-29T16:51:42.795Z,st,Chrome,paste,,hey,,,,,INPUT,text,Name_First,hey,,,,\n" +
                         "2019-04-29T16:51:44.332Z,st,Chrome,paste,,hey,,,,,INPUT,text,Name_First,heyhey,,,,\n" +
                         "2019-04-29T16:51:45.657Z,st,Chrome,editField,,,,,,,INPUT,text,Name_First,heyheyhey,,,,\n",
-                WriteSimplifier.deleteRedundantChromeEditField(logs));
+                WriteSimplifier.removeRedundantEditField(logs));
     }
 }

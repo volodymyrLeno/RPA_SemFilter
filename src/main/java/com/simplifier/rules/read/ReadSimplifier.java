@@ -70,9 +70,9 @@ public class ReadSimplifier {
      * the log contains a single "copy" action and there is no paste
      * action after it.
      */
-    private static String singleCopyRegex = "((((?!(((?!,).)*,){3}\"copy(((?!,).)*,){15}).)*\\n)*)" +
-                                            "((((?!,).)*,){3}(\"copy).*\\n*)" +
-                                            "((((?!(((?!,).)*,){3}(\"paste|\"copy)(((?!,).)*,){15}).)*\\n*)*)";
+    private static String singleCopyRegex = "((.*\\n)*)" +
+                                            "((\"([^\"]|\"\")*\",){3}(\"copy).*\\n*)" +
+                                            "(((\"([^\"]|\"\")*\",){3}((?!\"paste|\"copy).)*\",.*\\n*)*)";
 
     /**
      * This method is used to check if the log contains a
@@ -160,11 +160,11 @@ public class ReadSimplifier {
     public static String removeSingleCopy(String log) {
         /*
             $1 is a parameter of ReadSimplifier#singleCopyRegex
-            that is responsible for every action before single "copy"
-            action. $13 is a parameter of ReadSimplifier#singleCopyRegex
-            that is responsible for every action after a single "copy" action.
+            that represents every action before single "copy"
+            action. $7 is a parameter of ReadSimplifier#singleCopyRegex
+            that represents every action after a single "copy" action.
          */
-        log = log.replaceAll(singleCopyRegex, "$1$12");
+        log = log.replaceAll(singleCopyRegex, "$1$7");
 
         if (containsSingleCopy(log)) {
             return removeSingleCopy(log);
