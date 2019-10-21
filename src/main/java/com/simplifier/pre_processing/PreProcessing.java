@@ -79,7 +79,7 @@ public class PreProcessing {
         }
 
         if (Pattern.compile(chromeRegex).matcher(log).find()) {
-            log = log.replaceAll(chromeRegex, "$1$6$9\"pasteIntoCell\",$10$4$14");
+            log = log.replaceAll(chromeRegex, "$1$6$9\"pasteIntoCell\",$10$4$14\n");
             return identifyPasteAction(log);
         }
 
@@ -104,17 +104,17 @@ public class PreProcessing {
      * @return log with merged "editCell", "getRange" and "getCell" actions and OS-Clipboard "copy" action.
      */
     public static String mergeNavigationCellCopy(String log) {
-        String getCellRegex = "((((?!,).)*,)((((?!,).)*,){2})\"getCell\",(((?!,).)*,){2}(.*)\\n" +
-                              "(((?!(((?!,).)*,){3}(\"editCell\"|\"getRange\"|\"getCell\"),(((?!,).)*,){9}).)*\\n)*)" +
-                              "(((?!,).)*,)(((?!,).)*,)\"OS-Clipboard\",\"copy\",((((?!,).)*,){2}).*\\n*";
+        String getCellRegex = "((\"([^\"]|\"\")*\",)((\"([^\"]|\"\")*\",){2})\"getCell\",(\"([^\"]|\"\")*\",){2}(.*)\\n" +
+                              "(((?!(\"([^\"]|\"\")*\",){3}(\"editCell\"|\"getRange\"|\"getCell\"),(\"([^\"]|\"\")*\",){9}).)*\\n)*)" +
+                              "(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",)\"OS-Clipboard\",\"copy\",((\"([^\"]|\"\")*\",){2}).*\\n*";
 
-        String getRangeRegex = "((((?!,).)*,)((((?!,).)*,){2})\"getRange\",(((?!,).)*,){2}(.*)\\n" +
-                               "(((?!(((?!,).)*,){3}(\"editCell\"|\"getRange\"|\"getCell\"),(((?!,).)*,){9}).)*\\n)*)" +
-                               "(((?!,).)*,)(((?!,).)*,)\"OS-Clipboard\",\"copy\",((((?!,).)*,){2}).*\\n*";
+        String getRangeRegex = "((\"([^\"]|\"\")*\",)((\"([^\"]|\"\")*\",){2})\"getRange\",(\"([^\"]|\"\")*\",){2}(.*)\\n" +
+                               "(((?!(\"([^\"]|\"\")*\",){3}(\"editCell\"|\"getRange\"|\"getCell\"),(\"([^\"]|\"\")*\",){9}).)*\\n)*)" +
+                               "(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",)\"OS-Clipboard\",\"copy\",((((?!,).)*,){2}).*\\n*";
 
-        String editCellRegex = "((((?!,).)*,)((((?!,).)*,){2})\"editCell\",(((?!,).)*,){2}(.*)\\n" +
-                               "(((?!(((?!,).)*,){3}(\"editCell\"|\"getRange\"|\"getCell\"),(((?!,).)*,){9}).)*\\n)*)" +
-                               "(((?!,).)*,)(((?!,).)*,)\"OS-Clipboard\",\"copy\",((((?!,).)*,){2}).*\\n*";
+        String editCellRegex = "((\"([^\"]|\"\")*\",)((\"([^\"]|\"\")*\",){2})\"editCell\",(\"([^\"]|\"\")*\",){2}(.*)\\n" +
+                               "(((?!(\"([^\"]|\"\")*\",){3}(\"editCell\"|\"getRange\"|\"getCell\"),(\"([^\"]|\"\")*\",){9}).)*\\n)*)" +
+                               "(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",)\"OS-Clipboard\",\"copy\",((\"([^\"]|\"\")*\",){2}).*\\n*";
 
         if (Pattern.compile(getCellRegex).matcher(log).find()) {
             log = log.replaceAll(getCellRegex, "$1$17$4\"copyCell\",$21$9\n");
@@ -131,7 +131,8 @@ public class PreProcessing {
             return mergeNavigationCellCopy(log);
         }
 
-        log = log.replaceAll("((((?!,).)*,){3}\"getCell\",.*\\n*)|((((?!,).)*,){3}\"getRange\",.*\\n*)", "");
+        log = log.replaceAll("((\"([^\"]|\"\")*\",){3}\"getCell\",.*\\n*)|" +
+                                    "((\"([^\"]|\"\")*\",){3}\"getRange\",.*\\n*)", "");
 
         return log;
     }
@@ -150,15 +151,14 @@ public class PreProcessing {
      *          Chrome "copy" actions.
      */
     public static String deleteChromeClipboardCopy(String log) {
-        String regex = "((((?!,).)*,){2}\"Chrome\",\"copy\",.*\\n)" +
-                       "((((?!,).)*,){2}\"OS-Clipboard\",\"copy\",.*\\n*)";
+        String regex = "((\"([^\"]|\"\")*\",){2}\"Chrome\",\"copy\",.*\\n)" +
+                       "((\"([^\"]|\"\")*\",){2}\"OS-Clipboard\",\"copy\",.*\\n*)";
 
         Pattern p = Pattern.compile(regex);
         Matcher matcher = p.matcher(log);
 
-        log = log.replaceAll(regex, "$1");
-
         if (matcher.find()) {
+            log = log.replaceAll(regex, "$1");
             return deleteChromeClipboardCopy(log);
         }
 

@@ -61,9 +61,9 @@ public class ReadSimplifier {
      * there is any number of actions except "paste" action
      * between two "copy" actions.
      */
-    private static String redundantFirstCopyRegex = "((((?!,).)*,){3}\"copy.*\\n)" +
-                                                    "((((?!(((?!,).)*,){3}\"paste(((?!,).)*,){15}).)*\\n)*" +
-                                                    "(((?!,).)*,){3}\"copy.*\\n*)";
+    private static String redundantFirstCopyRegex = "((\"([^\"]|\"\")*\",){3}\"copy.*\\n)" +
+                                                    "((((?!(\"([^\"]|\"\")*\",){3}\"paste).)*\",.*\\n)*" +
+                                                    "(\"([^\"]|\"\")*\",){3}\"copy.*\\n*)";
 
     /**
      * This is a regular expression that corresponds to the case when
@@ -132,14 +132,13 @@ public class ReadSimplifier {
      * @return      the log without redundant "copy" actions.
      */
     public static String removeRedundantCopy(String log) {
-        /*
-            $4 is a parameter of ReadSimplifier#redundantFirstCopyRegex that
-            is responsible for every action after the first "copy" action and
-            the second "copy" action in the pattern.
-         */
-        log = log.replaceAll(redundantFirstCopyRegex, "$4");
-
         if (containsRedundantCopy(log)) {
+            /*
+                $4 is a parameter of ReadSimplifier#redundantFirstCopyRegex that
+                is responsible for every action after the first "copy" action and
+                the second "copy" action in the pattern.
+             */
+            log = log.replaceAll(redundantFirstCopyRegex, "$4");
             return removeRedundantCopy(log);
         }
 
@@ -158,15 +157,14 @@ public class ReadSimplifier {
      * @return  the log without single "copy" action.
      */
     public static String removeSingleCopy(String log) {
-        /*
-            $1 is a parameter of ReadSimplifier#singleCopyRegex
-            that represents every action before single "copy"
-            action. $7 is a parameter of ReadSimplifier#singleCopyRegex
-            that represents every action after a single "copy" action.
-         */
-        log = log.replaceAll(singleCopyRegex, "$1$7");
-
         if (containsSingleCopy(log)) {
+            /*
+                $1 is a parameter of ReadSimplifier#singleCopyRegex
+                that represents every action before single "copy"
+                action. $7 is a parameter of ReadSimplifier#singleCopyRegex
+                that represents every action after a single "copy" action.
+            */
+            log = log.replaceAll(singleCopyRegex, "$1$7");
             return removeSingleCopy(log);
         }
 
