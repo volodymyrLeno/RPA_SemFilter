@@ -8,8 +8,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Utils is the class for reading the log from a CSV file to <code>HashMap</code>,
+ * where the key is a caseId of the action and the value is <code>StringBuilder</code>
+ * that contains all actions with corresponding caseId, and also for writing the result
+ * of simplification to the CSV file.
+ */
 public class Utils {
 
+    /**
+     * This method is used for writing the log from to the file.
+     */
     public static void writeDataLineByLine(String filePath, String data) {
         try {
             CSVWriter writer = new CSVWriter(new FileWriter(filePath),
@@ -33,6 +42,14 @@ public class Utils {
         }
     }
 
+    /**
+     * This method is used for reading the log from the file.
+     *
+     * @param filePath  the location of the log
+     * @return          Map, where the key is a caseId of the log and the value is
+     *                  <code>StringBuilder</code> that contains all actions with
+     *                  corresponding caseId
+     */
     public Map<String, StringBuilder> readLogFromFile(String filePath) {
         Map<String, StringBuilder> cases = new HashMap<>();
 
