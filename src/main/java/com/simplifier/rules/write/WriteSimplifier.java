@@ -159,9 +159,9 @@ public class WriteSimplifier {
      * "copyCell" action between "editCell" action and another
      * "editCell" action with the same target id (cell address).
      */
-    private static String redundantEditCellRegex = ".*\"editCell\",(((?!,).)*,){4}(((?!,).)*),.*\\n" +
-                                                   "(((((?!,).)*,){3}((?!(\"getCell\"|\"copyCell\"),(((?!,).)*,){4}\\3).)*\\n)*" +
-                                                   ".*\"editCell\",(((?!,).)*,){4}\\3,.*\\n*)";
+    private static String redundantEditCellRegex = ".*\"editCell\",(\"([^\"]|\"\")*\",){4}(\"([^\"]|\"\")*\"),.*\\n" +
+                                                   "(((\"([^\"]|\"\")*\",){3}((?!(\"getCell\"|\"copyCell\"),(\"([^\"]|\"\")*\",){4}\\3).)*\\n)*" +
+                                                   ".*\"editCell\",(\"([^\"]|\"\")*\",){4}\\3,.*\\n*)";
 
     /**
      * This is a regular expression that corresponds to the case when
