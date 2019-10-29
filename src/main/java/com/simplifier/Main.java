@@ -42,66 +42,70 @@ public class Main {
     private static String applySimplifier(String log) {
         try {
             Validator.validateForIdOrName(log);
+
+            String sortedLog = PreProcessing.sortLog(log);
+            System.out.println("SORTED LOG\n");
+            System.out.println(sortedLog);
+
+            sortedLog = PreProcessing.deleteChromeClipboardCopy(sortedLog);
+            sortedLog = PreProcessing.mergeNavigationCellCopy(sortedLog);
+            sortedLog = PreProcessing.identifyPasteAction(sortedLog);
+            System.out.println("AFTER PRE PROCESSING\n");
+            System.out.println(sortedLog);
+
+            while (ReadSimplifier.containsRedundantCopy(sortedLog) ||
+                    ReadSimplifier.containsSingleCopy(sortedLog) ||
+                    NavigationSimplifier.containsRedundantClickTextField(sortedLog) ||
+                    WriteSimplifier.containsRedundantDoublePaste(sortedLog) ||
+                    WriteSimplifier.containsRedundantEditCell(sortedLog) ||
+                    WriteSimplifier.containsRedundantEditField(sortedLog) ||
+                    WriteSimplifier.containsRedundantPasteIntoCell(sortedLog) ||
+                    WriteSimplifier.containsRedundantPasteIntoRange(sortedLog) ||
+                    WriteSimplifier.containsRedundantDoubleEditField(sortedLog)) {
+
+                sortedLog = ReadSimplifier.removeRedundantCopy(sortedLog);
+                System.out.println("ReadSimplifier.removeRedundantCopy\n");
+                System.out.println(sortedLog);
+
+                sortedLog = ReadSimplifier.removeSingleCopy(sortedLog);
+                System.out.println("After ReadSimplifier.removeSingleCopy\n");
+                System.out.println(sortedLog);
+
+                sortedLog = NavigationSimplifier.removeRedundantClickTextField(sortedLog);
+                System.out.println("After NavigationSimplifier.removeRedundantClickTextField\n");
+                System.out.println(sortedLog);
+
+                sortedLog = WriteSimplifier.removeRedundantDoublePaste(sortedLog);
+                System.out.println("After WriteSimplifier.removeRedundantDoublePaste\n");
+                System.out.println(sortedLog);
+
+                sortedLog = WriteSimplifier.removeRedundantEditCell(sortedLog);
+                System.out.println("After WriteSimplifier.removeRedundantEditCell\n");
+                System.out.println(sortedLog);
+
+                sortedLog = WriteSimplifier.removeRedundantEditField(sortedLog);
+                System.out.println("After WriteSimplifier.removeRedundantEditField\n");
+                System.out.println(sortedLog);
+
+                sortedLog = WriteSimplifier.removeRedundantPasteIntoCell(sortedLog);
+                System.out.println("After WriteSimplifier.removeRedundantPasteIntoCell\n");
+                System.out.println(sortedLog);
+
+                sortedLog = WriteSimplifier.removeRedundantPasteIntoRange(sortedLog);
+                System.out.println("After WriteSimplifier.removeRedundantPasteIntoRange\n");
+                System.out.println(sortedLog);
+
+                sortedLog = WriteSimplifier.removeRedundantDoubleEditField(sortedLog);
+                System.out.println("After WriteSimplifier.removeRedundantDoubleEditField\n");
+                System.out.println(sortedLog);
+            }
+
+            return sortedLog;
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        String sortedLog = PreProcessing.sortLog(log);
-        System.out.println("SORTED LOG\n");
-        System.out.println(sortedLog);
 
-        sortedLog = PreProcessing.deleteChromeClipboardCopy(sortedLog);
-        sortedLog = PreProcessing.mergeNavigationCellCopy(sortedLog);
-        sortedLog = PreProcessing.identifyPasteAction(sortedLog);
-        System.out.println("AFTER PRE PROCESSING\n");
-        System.out.println(sortedLog);
-
-        while (ReadSimplifier.containsRedundantCopy(sortedLog) ||
-                ReadSimplifier.containsSingleCopy(sortedLog) ||
-                NavigationSimplifier.containsRedundantClickTextField(sortedLog) ||
-                WriteSimplifier.containsRedundantDoublePaste(sortedLog) ||
-                WriteSimplifier.containsRedundantEditCell(sortedLog) ||
-                WriteSimplifier.containsRedundantEditField(sortedLog) ||
-                WriteSimplifier.containsRedundantPasteIntoCell(sortedLog) ||
-                WriteSimplifier.containsRedundantPasteIntoRange(sortedLog) ||
-                WriteSimplifier.containsRedundantDoubleEditField(sortedLog)) {
-
-            sortedLog = ReadSimplifier.removeRedundantCopy(sortedLog);
-            System.out.println("ReadSimplifier.removeRedundantCopy\n");
-            System.out.println(sortedLog);
-
-            sortedLog = ReadSimplifier.removeSingleCopy(sortedLog);
-            System.out.println("After ReadSimplifier.removeSingleCopy\n");
-            System.out.println(sortedLog);
-
-            sortedLog = NavigationSimplifier.removeRedundantClickTextField(sortedLog);
-            System.out.println("After NavigationSimplifier.removeRedundantClickTextField\n");
-            System.out.println(sortedLog);
-
-            sortedLog = WriteSimplifier.removeRedundantDoublePaste(sortedLog);
-            System.out.println("After WriteSimplifier.removeRedundantDoublePaste\n");
-            System.out.println(sortedLog);
-
-            sortedLog = WriteSimplifier.removeRedundantEditCell(sortedLog);
-            System.out.println("After WriteSimplifier.removeRedundantEditCell\n");
-            System.out.println(sortedLog);
-
-            sortedLog = WriteSimplifier.removeRedundantEditField(sortedLog);
-            System.out.println("After WriteSimplifier.removeRedundantEditField\n");
-            System.out.println(sortedLog);
-
-            sortedLog = WriteSimplifier.removeRedundantPasteIntoCell(sortedLog);
-            System.out.println("After WriteSimplifier.removeRedundantPasteIntoCell\n");
-            System.out.println(sortedLog);
-
-            sortedLog = WriteSimplifier.removeRedundantPasteIntoRange(sortedLog);
-            System.out.println("After WriteSimplifier.removeRedundantPasteIntoRange\n");
-            System.out.println(sortedLog);
-
-            sortedLog = WriteSimplifier.removeRedundantDoubleEditField(sortedLog);
-            System.out.println("After WriteSimplifier.removeRedundantDoubleEditField\n");
-            System.out.println(sortedLog);
-        }
-
-        return sortedLog;
+        return log;
     }
 }
