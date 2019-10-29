@@ -41,7 +41,7 @@ public class Main {
 
     private static String applySimplifier(String log) {
         try {
-            Validator.validateForIdName(log);
+            Validator.validateForIdOrName(log);
         } catch (Exception e) {
             e.printStackTrace();
         }
