@@ -54,9 +54,8 @@ public class NavigationSimplifier {
      * @return      the log without redundant "clickTextField" actions.
      */
     public static String removeRedundantClickTextField(String log) {
-        log = log.replaceAll(redundantClickTextFieldRegex, "");
-
         if (containsRedundantClickTextField(log)) {
+            log = log.replaceAll(redundantClickTextFieldRegex, "");
             return removeRedundantClickTextField(log);
         }
 
