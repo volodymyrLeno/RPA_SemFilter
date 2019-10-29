@@ -181,9 +181,9 @@ public class WriteSimplifier {
      * between them except "copyRange" action with the same workbook name,
      * sheet name and cell range.
      */
-    private static String redundantPasteIntoRangeRegex = ".*\"pasteIntoRange\",(((?!,).)*,){2}((((?!,).)*,){3}).*\\n" +
-                                                         "(((((?!,).)*,){3}((?!\"copyRange\",(((?!,).)*,){2}\\3).)*\\n)*" +
-                                                         ".*\"pasteIntoRange\",(((?!,).)*,){2}\\3.*\\n*)";
+    private static String redundantPasteIntoRangeRegex = ".*\"pasteIntoRange\",(\"([^\"]|\"\")*\",){2}((\"([^\"]|\"\")*\",){3}).*\\n" +
+                                                         "(((\"([^\"]|\"\")*\",){3}((?!\"copyRange\",(\"([^\"]|\"\")*\",){2}\\3).)*\\n)*" +
+                                                         ".*\"pasteIntoRange\",(\"([^\"]|\"\")*\",){2}\\3.*\\n*)";
 
     /**
      * This is a regular expression that corresponds to the case when
