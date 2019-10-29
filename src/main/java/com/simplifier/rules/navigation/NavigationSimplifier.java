@@ -22,7 +22,7 @@ public class NavigationSimplifier {
      * This is regular expression that corresponds to the case when
      * there is "clickTextField" action.
      */
-    private static String redundantClickTextFieldRegex = "((((?!,).)*,){3}\"clickTextField\",.*\\n*)";
+    private static String redundantClickTextFieldRegex = "((\"([^\"]|\"\")*\",){3}\"clickTextField\",.*\\n*)";
 
     /**
      * This method is used to check if the log contains a
