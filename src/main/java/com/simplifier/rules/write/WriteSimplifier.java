@@ -229,12 +229,12 @@ public class WriteSimplifier {
      * between them with the same target name as the first "editField". The
      * second "editField" action has the same target name as the first
      * "editField" action and target value is a concatenation of the first
-     * "editField" target value and "paste" action target value.
+     * "editField" target value and "paste" action content.
      */
-    private static String pasteBetweenEditFieldsRegex = "(.*\"editField\",(((?!,).)*,){8}(((?!,).)*,)(((?!,).)*),.*\\n)" +
+    private static String pasteBetweenEditFieldsRegex = "(.*\"editField\",(\"([^\"]|\"\")*\",){8}(\"([^\"]|\"\")*\",)\"(([^\"]|\"\")*)\",.*\\n)" +
                                                         "(" +
-                                                        "((((?!,).)*,){3}\"paste\",(((?!,).)*,)(((?!,).)*),(((?!,).)*,){6}\\4.*\\n)*" +
-                                                        ".*\"editField\",(((?!,).)*,){8}\\4(((\\6\\14|,).)*),.*\\n*)";
+                                                        "((\"([^\"]|\"\")*\",){3}\"paste\",(\"([^\"]|\"\")*\",)\"(([^\"]|\"\")*)\",(((?!,).)*,){6}\\4.*\\n)*" +
+                                                        ".*\"editField\",(((?!,).)*,){8}\\4\"(\\6\\14)\",.*\\n*)";
 
     /**
      * Checks if the log contains a pattern that matches {@link WriteSimplifier#redundantEditCellRegex},
