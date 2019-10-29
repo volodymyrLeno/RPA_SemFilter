@@ -18,57 +18,68 @@ public class Utils {
                     CSVWriter.NO_ESCAPE_CHARACTER,
                     CSVWriter.RFC4180_LINE_END);
 
-            String[] header = {"caseID", "timeStamp", "userID", "targetApp", "eventType", "url", "content", "target.workbookName",
-                    "target.sheetName", "target.id", "target.class", "target.tagName", "target.type	", "target.name",
-                    "target.value", "target.innerText", "target.checked", "target.href", "target.option", "target.title", "target.innerHTML"
+            String[] headers = {"\"caseID\"", "\"timeStamp\"", "\"userID\"", "\"targetApp\"", "\"eventType\"", "\"url\"",
+                    "\"content\"", "\"target.workbookName\"", "\"target.sheetName\"", "\"target.id\"", "\"target.class\"",
+                    "\"target.tagName\"", "\"target.type\"", "\"target.name\"", "\"target.value\"", "\"target.innerText\"",
+                    "\"target.checked\"", "\"target.href\"", "\"target.option\"", "\"target.title\"", "\"target.innerHTML\""
             };
-            writer.writeNext(header);
 
-            String[] dataArray = data.split("\n");
-            for (String row : dataArray) {
-                String[] cell = row.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
-                writer.writeNext(Arrays.stream(cell)
-                        .map(e -> e.replaceAll("\"{2}(((?!,).)*)\"{2}", "\"\"\"$1\"\"\""))
-                        .toArray(String[]::new)
-                );
-            }
+            writer.writeNext(headers);
+            writeActionsValues(writer, data);
+
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public Map<String, StringBuilder> readLogsFromFile(String filePath) {
+    public Map<String, StringBuilder> readLogFromFile(String filePath) {
         Map<String, StringBuilder> cases = new HashMap<>();
 
         try {
             RFC4180Parser rfc4180Parser = new RFC4180ParserBuilder().withQuoteChar('\"').build();
-            BufferedReader filereader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
-            CSVReader csvReader = new CSVReaderBuilder(filereader)
+            BufferedReader fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
+            CSVReader csvReader = new CSVReaderBuilder(fileReader)
                     .withSkipLines(1)
                     .withCSVParser(rfc4180Parser)
                     .build();
 
-            String[] nextLine;
-            while ((nextLine = csvReader.readNext()) != null) {
-                String caseId = "\"" + nextLine[0] + "\"";
-
-                if (cases.get(caseId) == null) {
-                    cases.put(caseId, new StringBuilder());
-                }
-                cases.get(caseId).append(Arrays
-                        .stream(Arrays.copyOfRange(nextLine, 1, nextLine.length))
-                        .map(e -> "\"" + e + "\"")
-                        .collect(Collectors.joining(","))
-                ).append("\n");
-            }
+            createActionsMap(csvReader, cases);
 
             csvReader.close();
-            filereader.close();
+            fileReader.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return cases;
+    }
+
+    private static void writeActionsValues(CSVWriter writer, String data){
+        String[] actions = data.split("\n");
+
+        for (String action : actions) {
+            String[] actionValues = action.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+            actionValues = Arrays.stream(actionValues)
+                    .map(e -> e.replaceAll("\"{2}(([^\"]|\"\")*)\"{2}", "\"\"\"$1\"\"\""))
+                    .toArray(String[]::new);
+            writer.writeNext(actionValues);
+        }
+    }
+
+    private void createActionsMap(CSVReader csvReader, Map<String, StringBuilder> cases) throws IOException {
+        String[] nextLine;
+
+        while ((nextLine = csvReader.readNext()) != null) {
+            String caseId = nextLine[0] == null ? "undefined" : String.format("\"%s\"", nextLine[0]);
+            cases.putIfAbsent(caseId, new StringBuilder());
+
+            String[] actionValuesWithoutCaseId = Arrays.copyOfRange(nextLine, 1, nextLine.length);
+            String action = Arrays.stream(actionValuesWithoutCaseId)
+                    .map(e -> String.format("\"%s\"", e))
+                    .collect(Collectors.joining(","));
+
+            cases.get(caseId).append(action).append("\n");
+        }
     }
 }

@@ -17,7 +17,7 @@ public class Main {
     public static void main(String[] args) {
         String filePath = args[0];
         Utils utils = new Utils();
-        Map<String, StringBuilder> cases = utils.readLogsFromFile(filePath);
+        Map<String, StringBuilder> cases = utils.readLogFromFile(filePath);
         Map<String, String> result = cases.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, logCase -> {
                     String logs = logCase.getValue().toString();
