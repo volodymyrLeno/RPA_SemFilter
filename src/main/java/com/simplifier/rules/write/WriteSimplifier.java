@@ -193,7 +193,7 @@ public class WriteSimplifier {
      */
     private static String redundantDoublePasteRegex = ".*\"paste\",(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",){6}(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",).*\\n" +
                                                       "(((\"([^\"]|\"\")*\",){3}((?!\"copy\",(\"([^\"]|\"\")*\",){8}\\7).)*\\n)*" +
-                                                      ".*\"paste\",(\"([^\"]|\"\")*\",)\\3(\"([^\"]|\"\")*\",){6}\\7\\9.*\\n*)";
+                                                      ".*\"paste\",(\"([^\"]|\"\")*\",){2}(\"([^\"]|\"\")*\",){6}\\7\\9.*\\n*)";
 
     /**
      * This is a regular expression that corresponds to the case when
@@ -216,12 +216,12 @@ public class WriteSimplifier {
      * action.
      */
     private static String pasteEditFieldWithoutCopyRegex = "((((?!\"paste\").)*\\n)*)" +
-                                                           "((.*\"paste\",(((?!,).)*,){8}(((?!,).)*),.*\\n)*)" +
+                                                           "((.*\"paste\",(\"([^\"]|\"\")*\",){8}(\"([^\"]|\"\")*\"),.*\\n)*)" +
                                                            "(((.*\\n)*)" +
-                                                           "(.*\"editField\",(((?!,).)*,){8}(((?!,).)*),\"(((?!,).)*)\",.*\\n)" +
+                                                           "(.*\"editField\",(\"([^\"]|\"\")*\",){8}(\"([^\"]|\"\")*\"),\"(([^\"]|\"\")*)\",.*\\n)" +
                                                            "(" +
-                                                           "((((?!,).)*,){3}((?!\"copy\",(((?!,).)*,){8}\\16).)*\\n)*" +
-                                                           ".*\"editField\",(((?!,).)*,){8}\\16,(((?!\\18).)*),.*\\n*))";
+                                                           "((\"([^\"]|\"\")*\",){3}((?!\"copy\",(\"([^\"]|\"\")*\",){8}\\16).)*\\n)*" +
+                                                           ".*\"editField\",(\"([^\"]|\"\")*\",){8}\\16,(((?!\\18).)*),.*\\n*))";
 
     /**
      * This is a regular expression that corresponds to the case when
@@ -233,8 +233,8 @@ public class WriteSimplifier {
      */
     private static String pasteBetweenEditFieldsRegex = "(.*\"editField\",(\"([^\"]|\"\")*\",){8}(\"([^\"]|\"\")*\",)\"(([^\"]|\"\")*)\",.*\\n)" +
                                                         "(" +
-                                                        "((\"([^\"]|\"\")*\",){3}\"paste\",(\"([^\"]|\"\")*\",)\"(([^\"]|\"\")*)\",(((?!,).)*,){6}\\4.*\\n)*" +
-                                                        ".*\"editField\",(((?!,).)*,){8}\\4\"(\\6\\14)\",.*\\n*)";
+                                                        "((\"([^\"]|\"\")*\",){3}\"paste\",(\"([^\"]|\"\")*\",)\"(([^\"]|\"\")*)\",(\"([^\"]|\"\")*\",){6}\\4.*\\n)*" +
+                                                        ".*\"editField\",(\"([^\"]|\"\")*\",){8}\\4\"(\\6\\14)\",.*\\n*)";
 
     /**
      * Checks if the log contains a pattern that matches {@link WriteSimplifier#redundantEditCellRegex},
@@ -503,8 +503,8 @@ public class WriteSimplifier {
         Pattern withoutCopyPattern = Pattern.compile(pasteEditFieldWithoutCopyRegex);
         Matcher withoutCopyMatcher = withoutCopyPattern.matcher(log);
 
-        Pattern pastePattern = Pattern.compile(pasteBetweenEditFieldsRegex);
-        Matcher pasteMatcher = pastePattern.matcher(log);
+//        Pattern pastePattern = Pattern.compile(pasteBetweenEditFieldsRegex);
+//        Matcher pasteMatcher = pastePattern.matcher(log);
         /*
             group(8)    represents target name of the first "paste" action.
             group(16)   represents target name of the first "editField" action.
@@ -514,14 +514,15 @@ public class WriteSimplifier {
                         the first "editField" action.
             group(20)   represents every action after the first "editField" action.
          */
-        if (withoutCopyMatcher.find() && !pasteMatcher.find()) {
+//        if (withoutCopyMatcher.find() && !pasteMatcher.find()) {
+        if (withoutCopyMatcher.find()) {
             log = withoutCopyMatcher.replaceAll(mr -> {
                 if (mr.group(8) != null &&
                         mr.group(16) != null &&
                         mr.group(8).equals(mr.group(16))) {
                     return mr.group(1) + mr.group(10);
                 }
-                return mr.group(1) + mr.group(11) + mr.group(20);
+                return mr.group(1) + mr.group(4) + mr.group(11) + mr.group(20);
             });
 
             // $8 represents everything after the first "editField" action.
