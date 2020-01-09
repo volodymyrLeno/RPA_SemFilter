@@ -42,13 +42,25 @@ public class Utils {
         }
     }
 
+    private static void writeActionsValues(CSVWriter writer, String data) {
+        String[] actions = data.split("\n");
+
+        for (String action : actions) {
+            String[] actionValues = action.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+            actionValues = Arrays.stream(actionValues)
+//                    .map(e -> e.replaceAll("\"{2}(([^\"]|\"\")*)\"{2}", "\"\"\"$1\"\"\""))
+                    .toArray(String[]::new);
+            writer.writeNext(actionValues);
+        }
+    }
+
     /**
      * This method is used for reading the log from the file.
      *
-     * @param filePath  the location of the log
-     * @return          Map, where the key is a caseId of the log and the value is
-     *                  <code>StringBuilder</code> that contains all actions with
-     *                  corresponding caseId
+     * @param filePath the location of the log
+     * @return Map, where the key is a caseId of the log and the value is
+     * <code>StringBuilder</code> that contains all actions with
+     * corresponding caseId
      */
     public Map<String, StringBuilder> readLogFromFile(String filePath) {
         Map<String, StringBuilder> cases = new HashMap<>();
@@ -72,18 +84,6 @@ public class Utils {
         return cases;
     }
 
-    private static void writeActionsValues(CSVWriter writer, String data){
-        String[] actions = data.split("\n");
-
-        for (String action : actions) {
-            String[] actionValues = action.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
-            actionValues = Arrays.stream(actionValues)
-                    .map(e -> e.replaceAll("\"{2}(([^\"]|\"\")*)\"{2}", "\"\"\"$1\"\"\""))
-                    .toArray(String[]::new);
-            writer.writeNext(actionValues);
-        }
-    }
-
     private void createActionsMap(CSVReader csvReader, Map<String, StringBuilder> cases) throws IOException {
         String[] nextLine;
 
@@ -93,7 +93,11 @@ public class Utils {
 
             String[] actionValuesWithoutCaseId = Arrays.copyOfRange(nextLine, 1, nextLine.length);
             String action = Arrays.stream(actionValuesWithoutCaseId)
-                    .map(e -> String.format("\"%s\"", e))
+                    .map(e -> {
+                        e = e.replaceAll("\"", "\"\"");
+                        e = String.format("\"%s\"", e);
+                        return e;
+                    })
                     .collect(Collectors.joining(","));
 
             cases.get(caseId).append(action).append("\n");

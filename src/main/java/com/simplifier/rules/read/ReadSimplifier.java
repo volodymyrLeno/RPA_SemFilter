@@ -71,8 +71,8 @@ public class ReadSimplifier {
      * action after it.
      */
     private static String singleCopyRegex = "((.*\\n)*)" +
-                                            "((\"([^\"]|\"\")*\",){3}(\"copy).*\\n*)" +
-                                            "(((\"([^\"]|\"\")*\",){3}((?!\"paste|\"copy).)*\",.*\\n*)*)";
+                                            "((\"([^\"]|\"\")*\",){3}(\"copy[a-zA-Z]*\",)(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",).*\\n*)" +
+                                            "(((\"([^\"]|\"\")*\",){3}(?!((\"paste[a-zA-Z]*\",(\"([^\"]|\"\")*\",)\\9)|\"copy[a-zA-Z]*\")).*\\n*)*)";
 
     /**
      * This method is used to check if the log contains a
@@ -164,7 +164,7 @@ public class ReadSimplifier {
                 action. $7 is a parameter of ReadSimplifier#singleCopyRegex
                 that represents every action after a single "copy" action.
             */
-            log = log.replaceAll(singleCopyRegex, "$1$7");
+            log = log.replaceAll(singleCopyRegex, "$1$11");
             return removeSingleCopy(log);
         }
 
