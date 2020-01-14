@@ -70,9 +70,9 @@ public class ReadSimplifier {
      * the log contains a single "copy" action and there is no paste
      * action after it.
      */
-    private static String singleCopyRegex = "((.*\\n)*)" +
-                                            "((\"([^\"]|\"\")*\",){3}(\"copy[a-zA-Z]*\",)(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",).*\\n*)" +
-                                            "(((\"([^\"]|\"\")*\",){3}(?!((\"paste[a-zA-Z]*\",(\"([^\"]|\"\")*\",)\\9)|\"copy[a-zA-Z]*\")).*\\n*)*)";
+    private static String singleCopyRegex = "((\"([^\"]|\"\")*\",){3}(\"copy[a-zA-Z]*\",)(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",).*\\n*)" +
+                                            "(((\"([^\"]|\"\")*\",){3}(?!(\"paste[a-zA-Z]*\",(\"([^\"]|\"\")*\",)\\7)).*\\n*)*" +
+                                            "(((\"([^\"]|\"\")*\",){3}(\"paste[a-zA-Z]*\",(\"([^\"]|\"\")*\",)\\7).*\\n*)*))";
 
     /**
      * This method is used to check if the log contains a
@@ -115,7 +115,7 @@ public class ReadSimplifier {
         Pattern p = Pattern.compile(singleCopyRegex);
         Matcher matcher = p.matcher(log);
 
-        return matcher.matches();
+        return matcher.find() && matcher.group(17) == null;
     }
 
     /**
@@ -159,12 +159,10 @@ public class ReadSimplifier {
     public static String removeSingleCopy(String log) {
         if (containsSingleCopy(log)) {
             /*
-                $1 is a parameter of ReadSimplifier#singleCopyRegex
-                that represents every action before single "copy"
-                action. $7 is a parameter of ReadSimplifier#singleCopyRegex
+                $9 is a parameter of ReadSimplifier#singleCopyRegex
                 that represents every action after a single "copy" action.
             */
-            log = log.replaceAll(singleCopyRegex, "$1$11");
+            log = log.replaceAll(singleCopyRegex, "$9");
             return removeSingleCopy(log);
         }
 
