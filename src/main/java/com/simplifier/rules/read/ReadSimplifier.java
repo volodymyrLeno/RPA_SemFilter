@@ -70,9 +70,9 @@ public class ReadSimplifier {
      * the log contains a single "copy" action and there is no paste
      * action after it.
      */
-    private static String singleCopyRegex = "((\"([^\"]|\"\")*\",){3}(\"copy[a-zA-Z]*\",)(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",).*\\n*)" +
-                                            "(((\"([^\"]|\"\")*\",){3}(?!(\"paste[a-zA-Z]*\",(\"([^\"]|\"\")*\",)\\7)).*\\n*)*" +
-                                            "(((\"([^\"]|\"\")*\",){3}(\"paste[a-zA-Z]*\",(\"([^\"]|\"\")*\",)\\7).*\\n*)*))";
+    private static String singleCopyRegex = "((\"([^\"]|\"\")*\",){3}(\"copy[a-zA-Z]*\",)(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",).*\\n)" +
+                                            "(((\"([^\"]|\"\")*\",){3}(?!(\"paste[a-zA-Z]*\"|\"copy[a-zA-Z]*\")).*\\n)*" +
+                                            "((\"([^\"]|\"\")*\",){3}(\"paste[a-zA-Z]*\",(\"([^\"]|\"\")*\",)(?!\\7)).*\\n*))";
 
     /**
      * This method is used to check if the log contains a
@@ -115,7 +115,7 @@ public class ReadSimplifier {
         Pattern p = Pattern.compile(singleCopyRegex);
         Matcher matcher = p.matcher(log);
 
-        return matcher.find() && matcher.group(17) == null;
+        return matcher.find();
     }
 
     /**

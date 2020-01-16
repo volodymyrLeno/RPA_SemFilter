@@ -54,6 +54,7 @@ public class PreProcessing {
      * @return  log with replaced "editCell" or "editRange" action
      *          with "pasteIntoCell" or "pasteIntoRange" actions.
      */
+    // Split into 3 methods
     public static String identifyPasteAction(String log) {
         String cellRegex = "(.*\"copyCell\",(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\"),.*\\n)" +
                            "((.*\\n)*)" +
@@ -67,17 +68,19 @@ public class PreProcessing {
                              "((.*\\n)*)" +
                              "((.*)\"editCell\",(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",)((\"([^\"]|\"\")*\",){7}\\4.*\\n*))";
 
-
+        // + check if the log contains editCell
         if (Pattern.compile(cellRegex).matcher(log).find()) {
             log = log.replaceAll(cellRegex, "$1$6$9\"pasteIntoCell\",$10$4,$14\n");
             return identifyPasteAction(log);
         }
 
+        // + check if the log contains editRange
         if (Pattern.compile(rangeRegex).matcher(log).find()) {
             log = log.replaceAll(rangeRegex, "$1$10$13\"pasteIntoRange\",$14$4$18\n");
             return identifyPasteAction(log);
         }
 
+        // + check if the log contains editCell
         if (Pattern.compile(chromeRegex).matcher(log).find()) {
             log = log.replaceAll(chromeRegex, "$1$6$9\"pasteIntoCell\",$10$4$14\n");
             return identifyPasteAction(log);
@@ -103,6 +106,7 @@ public class PreProcessing {
      * @param log the log that contains input actions.
      * @return log with merged "editCell", "getRange" and "getCell" actions and OS-Clipboard "copy" action.
      */
+    // Split into 3 methods
     public static String mergeNavigationCellCopy(String log) {
         String getCellRegex = "((\"([^\"]|\"\")*\",)((\"([^\"]|\"\")*\",){2})\"getCell\",(\"([^\"]|\"\")*\",){2}(.*)\\n" +
                               "(((?!(\"([^\"]|\"\")*\",){3}(\"editCell\"|\"getRange\"|\"getCell\"),(\"([^\"]|\"\")*\",){9}).)*\\n)*)" +
