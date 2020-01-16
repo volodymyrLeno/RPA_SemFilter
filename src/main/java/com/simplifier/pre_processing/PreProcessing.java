@@ -37,14 +37,6 @@ public class PreProcessing {
      * actions and changes "editCell" or "editRange" actions to "pasteIntoCell" and
      * "pasteIntoRange" actions respectively.
      * <p>
-     * The method contains {@code cellRegex}, {@code rangeRegex} and {@code chromeRegex}
-     * regular expressions. {@code cellRegex} corresponds to the case when there are "copyCell"
-     * action, any number of actions and "editCell" action which target.value is equal to "copyCell"
-     * action content (\\4). {@code rangeRegex} corresponds to the case when there are "copyRange"
-     * action, any number of actions and "editRange" action which target.value is equal to "copyRange"
-     * action content (\\8). {@code chromeRegex} corresponds to the case when there is Chrome "copy"
-     * action, any number of actions and "editCell" action which target.value is equal to "copy"
-     * action content (\\4).
      * If the log contains a pattern that matches {@code cellRegex} regular expressions, the method will
      * replace "editCell" action from the pattern to "pasteIntoCell", and if the log contains {@code rangeRegex}
      * regular expression the method will replace "editRange" action from the pattern to "pasteIntoRange" action.
@@ -54,36 +46,72 @@ public class PreProcessing {
      * @return  log with replaced "editCell" or "editRange" action
      *          with "pasteIntoCell" or "pasteIntoRange" actions.
      */
-    // Split into 3 methods
     public static String identifyPasteAction(String log) {
+        log = transformCopyCellEditToPaste(log);
+        log = transformCopyRangeEditToPaste(log);
+        log = transformChromeCopyEditToPaste(log);
+
+        return log;
+    }
+
+    /**
+     * Finds a pattern {@code cellRegex} that corresponds to the case when there are "copyCell"
+     * action, any number of actions and "editCell" action which target.value is equal to "copyCell"
+     * action content (\\4).
+     *
+     * @param log the log that contains input actions.
+     * @return log with replaced "editCell" action with "pasteIntoCell" action.
+     */
+    public static String transformCopyCellEditToPaste(String log) {
         String cellRegex = "(.*\"copyCell\",(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\"),.*\\n)" +
                            "((.*\\n)*)" +
                            "((.*)\"editCell\",(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",)((\"([^\"]|\"\")*\",){7}\\4.*)\\n*)";
 
+        if (Pattern.compile(cellRegex).matcher(log).find()) {
+            log = log.replaceAll(cellRegex, "$1$6$9\"pasteIntoCell\",$10$4,$14\n");
+            return transformCopyCellEditToPaste(log);
+        }
+
+        return log;
+    }
+
+    /**
+     * Finds a pattern {@code rangeRegex} that corresponds to the case when there are "copyRange"
+     * action, any number of actions and "editRange" action which target.value is equal to "copyRange"
+     * action content (\\8).
+     *
+     * @param log the log that contains input actions.
+     * @return log with replaced "editRange" action with "pasteIntoRange" action.
+     */
+    public static String transformCopyRangeEditToPaste(String log) {
         String rangeRegex = "(.*\"copyRange\",(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",){7}(\"([^\"]|\"\")*\",).*\\n)" +
                             "((.*\\n)*)" +
                             "((.*)\"editRange\",(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",)((\"([^\"]|\"\")*\",){7}\\8.*)\\n*)";
 
+        if (Pattern.compile(rangeRegex).matcher(log).find()) {
+            log = log.replaceAll(rangeRegex, "$1$10$13\"pasteIntoRange\",$14$4$18\n");
+            return transformCopyRangeEditToPaste(log);
+        }
+
+        return log;
+    }
+
+    /**
+     * Finds a pattern {@code chromeRegex} that corresponds to the case when there is Chrome "copy"
+     * action, any number of actions and "editCell" action which target.value is equal to "copy"
+     * action content (\\4).
+     *
+     * @param log the log that contains input actions.
+     * @return log with replaced "editCell" action with "pasteIntoCell" action.
+     */
+    public static String transformChromeCopyEditToPaste(String log) {
         String chromeRegex = "(.*\"Chrome\",\"copy\",(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",).*\\n)" +
                              "((.*\\n)*)" +
                              "((.*)\"editCell\",(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",)((\"([^\"]|\"\")*\",){7}\\4.*\\n*))";
 
-        // + check if the log contains editCell
-        if (Pattern.compile(cellRegex).matcher(log).find()) {
-            log = log.replaceAll(cellRegex, "$1$6$9\"pasteIntoCell\",$10$4,$14\n");
-            return identifyPasteAction(log);
-        }
-
-        // + check if the log contains editRange
-        if (Pattern.compile(rangeRegex).matcher(log).find()) {
-            log = log.replaceAll(rangeRegex, "$1$10$13\"pasteIntoRange\",$14$4$18\n");
-            return identifyPasteAction(log);
-        }
-
-        // + check if the log contains editCell
         if (Pattern.compile(chromeRegex).matcher(log).find()) {
             log = log.replaceAll(chromeRegex, "$1$6$9\"pasteIntoCell\",$10$4$14\n");
-            return identifyPasteAction(log);
+            return transformChromeCopyEditToPaste(log);
         }
 
         return log;
