@@ -67,8 +67,9 @@ public class PreProcessing {
                            "((.*\\n)*)" +
                            "((.*)\"editCell\",(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",)((\"([^\"]|\"\")*\",){7}\\4.*)\\n*)";
 
-        if (Pattern.compile(cellRegex).matcher(log).find()) {
+        if (log.contains("editCell") && Pattern.compile(cellRegex).matcher(log).find()) {
             log = log.replaceAll(cellRegex, "$1$6$9\"pasteIntoCell\",$10$4,$14\n");
+
             return transformCopyCellEditToPaste(log);
         }
 
@@ -88,8 +89,9 @@ public class PreProcessing {
                             "((.*\\n)*)" +
                             "((.*)\"editRange\",(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",)((\"([^\"]|\"\")*\",){7}\\8.*)\\n*)";
 
-        if (Pattern.compile(rangeRegex).matcher(log).find()) {
+        if (log.contains("editRange") && Pattern.compile(rangeRegex).matcher(log).find()) {
             log = log.replaceAll(rangeRegex, "$1$10$13\"pasteIntoRange\",$14$4$18\n");
+
             return transformCopyRangeEditToPaste(log);
         }
 
@@ -109,8 +111,9 @@ public class PreProcessing {
                              "((.*\\n)*)" +
                              "((.*)\"editCell\",(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",)((\"([^\"]|\"\")*\",){7}\\4.*\\n*))";
 
-        if (Pattern.compile(chromeRegex).matcher(log).find()) {
+        if (log.contains("editCell") && Pattern.compile(chromeRegex).matcher(log).find()) {
             log = log.replaceAll(chromeRegex, "$1$6$9\"pasteIntoCell\",$10$4$14\n");
+
             return transformChromeCopyEditToPaste(log);
         }
 
