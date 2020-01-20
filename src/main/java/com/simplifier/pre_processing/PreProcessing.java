@@ -123,51 +123,97 @@ public class PreProcessing {
     /**
      * Merges Excel navigation cell actions and OS-Clipboard "copy" actions then deletes
      * all "getRange" and "getCell" actions.
-     * <p>
-     * The method contains {@code getCellRegex}, {@code getRangeRegex} and {@code editCellRegex}
-     * regular expressions that correspond to the case when there are any number of actions except
-     * "editCell", "getRange" and "getCell" between "getCell" action, "getRange" action and "editCell"
-     * action respectively and "copy" action. If the log contains pattern that matches any of these
-     * regular expressions, the method will replace the pattern with new action: for {@code getCellRegex} and
-     * {@code editCellRegex} will bew created "copyCell" action and for {@code getRangeRegex} "copyRange"
-     * action. The method will be called again until there is a pattern that matches any of these regular
-     * expressions. After replacing defined patterns, the method removes all "getCell" and "getRange" actions.
-     * </p>
      *
      * @param log the log that contains input actions.
      * @return log with merged "editCell", "getRange" and "getCell" actions and OS-Clipboard "copy" action.
      */
-    // Split into 3 methods
     public static String mergeNavigationCellCopy(String log) {
+        log = mergeGetCellCopy(log);
+        log = mergeGetRangeCopy(log);
+        log = mergeEditCellCopy(log);
+
+        log = log.replaceAll("((\"([^\"]|\"\")*\",){3}\"getCell\",.*\\n*)|" +
+                                   "((\"([^\"]|\"\")*\",){3}\"getRange\",.*\\n*)", "");
+
+        return log;
+    }
+
+    /**
+     * Merges Excel "getCell" actions and OS-Clipboard "copy" actions then deletes
+     * all "getCell" actions.
+     * <p>
+     * The method contains {@code getCellRegex} regular expression that correspond to the case
+     * when there are any number of actions except "editCell", "getRange" and "getCell" between
+     * "getCell" action and "copy" action. If the log contains pattern that matches this regular
+     * expression, the method will replace the pattern with new action: "copyCell" action.
+     * </p>
+     *
+     * @param log the log that contains input actions.
+     * @return log with merged "getCell" actions and OS-Clipboard "copy" action.
+     */
+    public static String mergeGetCellCopy(String log) {
         String getCellRegex = "((\"([^\"]|\"\")*\",)((\"([^\"]|\"\")*\",){2})\"getCell\",(\"([^\"]|\"\")*\",){2}(.*)\\n" +
                               "(((?!(\"([^\"]|\"\")*\",){3}(\"editCell\"|\"getRange\"|\"getCell\"),(\"([^\"]|\"\")*\",){9}).)*\\n)*)" +
                               "(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",)\"OS-Clipboard\",\"copy\",((\"([^\"]|\"\")*\",){2}).*\\n*";
 
+        if (log.contains("getCell") && Pattern.compile(getCellRegex).matcher(log).find()) {
+            log = log.replaceAll(getCellRegex, "$1$17$4\"copyCell\",$21$9\n");
+
+            return mergeGetCellCopy(log);
+        }
+
+        return log;
+    }
+
+    /**
+     * Merges Excel "getRange" actions and OS-Clipboard "copy" actions then deletes
+     * all "getRange" actions.
+     * <p>
+     * The method contains {@code getRangeRegex} regular expression that correspond to the case
+     * when there are any number of actions except "editCell", "getRange" and "getCell" between
+     * "getRange" action and "copy" action. If the log contains pattern that matches this regular
+     * expression, the method will replace the pattern with new action: "copyRange" action.
+     * </p>
+     *
+     * @param log the log that contains input actions.
+     * @return log with merged "getRange" actions and OS-Clipboard "copy" action.
+     */
+    public static String mergeGetRangeCopy(String log) {
         String getRangeRegex = "((\"([^\"]|\"\")*\",)((\"([^\"]|\"\")*\",){2})\"getRange\",(\"([^\"]|\"\")*\",){2}(.*)\\n" +
                                "(((?!(\"([^\"]|\"\")*\",){3}(\"editCell\"|\"getRange\"|\"getCell\"),(\"([^\"]|\"\")*\",){9}).)*\\n)*)" +
                                "(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",)\"OS-Clipboard\",\"copy\",((((?!,).)*,){2}).*\\n*";
 
+        if (log.contains("getRange") && Pattern.compile(getRangeRegex).matcher(log).find()) {
+            log = log.replaceAll(getRangeRegex, "$1$17$4\"copyRange\",$21$9\n");
+
+            return mergeGetRangeCopy(log);
+        }
+
+        return log;
+    }
+
+    /**
+     * Merges Excel "editCell" actions and OS-Clipboard "copy" actions.
+     * <p>
+     * The method contains {@code editCellRegex} regular expression that correspond to the case
+     * when there are any number of actions except "editCell", "getRange" and "getCell" between
+     * "editCell" action and "copy" action. If the log contains pattern that matches this regular
+     * expression, the method will replace the pattern with new action: "copyCell" action.
+     * </p>
+     *
+     * @param log the log that contains input actions.
+     * @return log with merged "editCell" actions and OS-Clipboard "copy" action.
+     */
+    public static String mergeEditCellCopy(String log) {
         String editCellRegex = "((\"([^\"]|\"\")*\",)((\"([^\"]|\"\")*\",){2})\"editCell\",(\"([^\"]|\"\")*\",){2}(.*)\\n" +
                                "(((?!(\"([^\"]|\"\")*\",){3}(\"editCell\"|\"getRange\"|\"getCell\"),(\"([^\"]|\"\")*\",){9}).)*\\n)*)" +
                                "(\"([^\"]|\"\")*\",)(\"([^\"]|\"\")*\",)\"OS-Clipboard\",\"copy\",((\"([^\"]|\"\")*\",){2}).*\\n*";
 
-        if (Pattern.compile(getCellRegex).matcher(log).find()) {
-            log = log.replaceAll(getCellRegex, "$1$17$4\"copyCell\",$21$9\n");
-            return mergeNavigationCellCopy(log);
-        }
-
-        if (Pattern.compile(getRangeRegex).matcher(log).find()) {
-            log = log.replaceAll(getRangeRegex, "$1$17$4\"copyRange\",$21$9\n");
-            return mergeNavigationCellCopy(log);
-        }
-
-        if (Pattern.compile(editCellRegex).matcher(log).find()) {
+        if (log.contains("editCell") && Pattern.compile(editCellRegex).matcher(log).find()) {
             log = log.replaceAll(editCellRegex, "$1$17$4\"copyCell\",$21$9\n");
-            return mergeNavigationCellCopy(log);
-        }
 
-        log = log.replaceAll("((\"([^\"]|\"\")*\",){3}\"getCell\",.*\\n*)|" +
-                                    "((\"([^\"]|\"\")*\",){3}\"getRange\",.*\\n*)", "");
+            return mergeEditCellCopy(log);
+        }
 
         return log;
     }
@@ -194,6 +240,7 @@ public class PreProcessing {
 
         if (matcher.find()) {
             log = log.replaceAll(regex, "$1");
+
             return deleteChromeClipboardCopy(log);
         }
 
